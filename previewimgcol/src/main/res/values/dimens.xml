@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="baseRowHeight">150dp</dimen>
+    <dimen name="imageMargin">1px</dimen>
+
+</resources>

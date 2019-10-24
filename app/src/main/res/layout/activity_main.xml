@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -13,7 +14,12 @@
             android:id="@+id/imageCollectionView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="10dp" />
+            android:layout_margin="10dp"
+            app:backgroundColor="@color/colorPrimary"
+            app:baseRowHeight="150dp"
+            app:imageMargin="1px"
+            app:maxImagePerRow="3"
+            app:maxRows="3" />
 
     </RelativeLayout>
 

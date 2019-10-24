@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ImageCollectionView">
+        <attr name="baseRowHeight" format="dimension" />
+        <attr name="imageMargin" format="dimension" />
+        <attr name="maxImagePerRow" format="integer" />
+        <attr name="maxRows" format="integer" />
+        <attr name="backgroundColor" format="color" />
+        <attr name="pinchToZoom" format="boolean" />
+    </declare-styleable>
+
+    <attr name="previewImageCollection" format="reference" />
+
+</resources>

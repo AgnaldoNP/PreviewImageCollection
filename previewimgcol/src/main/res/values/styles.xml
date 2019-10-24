@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="defaultPreviewImageCollection">
+        <item name="baseRowHeight">@dimen/baseRowHeight</item>
+        <item name="imageMargin">@dimen/imageMargin</item>
+        <item name="maxImagePerRow">@integer/maxImagePerRow</item>
+        <item name="backgroundColor">@color/backgroundColor</item>
+    </style>
+
+</resources>
