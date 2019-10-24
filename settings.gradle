@@ -1,0 +1,2 @@
+include ':app', ':previewimgcol'
+rootProject.name='Preview Images Collections'
