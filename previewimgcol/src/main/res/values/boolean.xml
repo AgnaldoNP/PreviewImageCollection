@@ -2,5 +2,6 @@
 <resources>
 
     <bool name="pinchToZoom">true</bool>
+    <bool name="showExternalBorderMargins">true</bool>
 
 </resources>

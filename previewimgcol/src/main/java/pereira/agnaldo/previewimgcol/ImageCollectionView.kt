@@ -19,19 +19,57 @@ class ImageCollectionView @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
 
+    companion object {
+        const val NO_ROW_LIMITS = -1
+    }
+
     private val mBitmaps: ArrayList<Bitmap>
     private val mHashBitmapOnClick: HashMap<Bitmap, OnImageClickListener>
     private val mHashBitmapImageView: HashMap<Bitmap, ImageView>
 
-    private var mMaxImagePerRow = 3
-    private var mMaxRows = 1
-    private var mBaseHeight = 300
-    private var mImageMargin = 1
-    private var mBackgroundColor = Color.WHITE
-    private var mPinchToZoom = true
+    var maxImagePerRow = 3
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var maxRows = NO_ROW_LIMITS
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var baseImageHeight = 300
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var imageMargin = 1
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var mBackgroundColor = Color.WHITE
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var pinchToZoom = true
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var showExternalBorderMargins = false
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
 
     init {
-        setBackgroundColor(mBackgroundColor)
         orientation = VERTICAL
 
         mBitmaps = ArrayList()
@@ -49,28 +87,33 @@ class ImageCollectionView @JvmOverloads constructor(
                 R.styleable.ImageCollectionView, defStyle, R.style.defaultPreviewImageCollection
             )
 
-            mBaseHeight = typedArray.getDimensionPixelSize(
-                R.styleable.ImageCollectionView_baseRowHeight, mBaseHeight
+            baseImageHeight = typedArray.getDimensionPixelSize(
+                R.styleable.ImageCollectionView_baseRowHeight, baseImageHeight
             )
 
-            mImageMargin = typedArray.getDimensionPixelSize(
-                R.styleable.ImageCollectionView_imageMargin, mImageMargin
+            imageMargin = typedArray.getDimensionPixelSize(
+                R.styleable.ImageCollectionView_imageMargin, imageMargin
             )
 
-            mMaxImagePerRow = typedArray.getInteger(
-                R.styleable.ImageCollectionView_maxImagePerRow, mMaxImagePerRow
+            maxImagePerRow = typedArray.getInteger(
+                R.styleable.ImageCollectionView_maxImagePerRow, maxImagePerRow
             )
 
-            mMaxRows = typedArray.getInteger(
-                R.styleable.ImageCollectionView_maxRows, mMaxRows
+            maxRows = typedArray.getInteger(
+                R.styleable.ImageCollectionView_maxRows, maxRows
             )
 
             mBackgroundColor = typedArray.getColor(
                 R.styleable.ImageCollectionView_backgroundColor, mBackgroundColor
             )
 
-            mPinchToZoom = typedArray.getBoolean(
-                R.styleable.ImageCollectionView_pinchToZoom, mPinchToZoom
+            pinchToZoom = typedArray.getBoolean(
+                R.styleable.ImageCollectionView_pinchToZoom, pinchToZoom
+            )
+
+            showExternalBorderMargins = typedArray.getBoolean(
+                R.styleable.ImageCollectionView_showExternalBorderMargins,
+                showExternalBorderMargins
             )
 
             typedArray.recycle()
@@ -82,15 +125,16 @@ class ImageCollectionView @JvmOverloads constructor(
     }
 
     fun addBitmap(bitmap: Bitmap, onClick: OnImageClickListener?) {
-        reEvaluateLastLine(bitmap)
+        reEvaluateLastRow(bitmap)
         mBitmaps.add(bitmap)
         onClick?.let { mHashBitmapOnClick.put(bitmap, it) }
+        removeOutsideMargins()
         invalidate()
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        post { loadBitmaps() }
+        post { clearAndReloadBitmaps() }
     }
 
     override fun onDetachedFromWindow() {
@@ -102,34 +146,41 @@ class ImageCollectionView @JvmOverloads constructor(
         }
     }
 
-    private fun loadBitmaps() {
+    private fun clearAndReloadBitmaps() {
         removeAllViews()
-        extractFirstImagesPerLine(mBitmaps)
+        extractAndInflateImagesPerLine(mBitmaps)
+        removeOutsideMargins()
     }
 
-    private fun extractFirstImagesPerLine(bitmaps: List<Bitmap>) {
-        if (bitmaps.size > mMaxImagePerRow) {
-            val newLine = createNewLine()
-            addBitmapsToLine(bitmaps.subList(0, mMaxImagePerRow), newLine)
+    private fun extractAndInflateImagesPerLine(bitmaps: List<Bitmap>) {
+        val maxRowReached = maxRows != NO_ROW_LIMITS && childCount == maxRows
 
-            extractFirstImagesPerLine(bitmaps.subList(mMaxImagePerRow, bitmaps.size))
+        if (!maxRowReached && bitmaps.size > maxImagePerRow) {
+            val newLine = createNewRow()
+            addBitmapsToLine(bitmaps.subList(0, maxImagePerRow), newLine)
+
+            extractAndInflateImagesPerLine(bitmaps.subList(maxImagePerRow, bitmaps.size))
             return
         } else {
-            val newLine = createNewLine()
-            addBitmapsToLine(bitmaps, newLine)
+            if (!maxRowReached) {
+                val newLine = createNewRow()
+                addBitmapsToLine(bitmaps, newLine)
+            } else {
+
+            }
         }
     }
 
-    private fun reEvaluateLastLine(bitmap: Bitmap) {
+    private fun reEvaluateLastRow(bitmap: Bitmap) {
         if (width == 0) {
             return
         }
 
         val lineLinearLayout = getChildAt(childCount - 1) as ViewGroup
         val lineChildCount = lineLinearLayout.childCount
-        if (lineChildCount == mMaxImagePerRow) {
-            createNewLine()
-            reEvaluateLastLine(bitmap)
+        if (lineChildCount == maxImagePerRow) {
+            createNewRow()
+            reEvaluateLastRow(bitmap)
             return
         }
 
@@ -141,11 +192,12 @@ class ImageCollectionView @JvmOverloads constructor(
         addBitmapsToLine(bitmaps, lineLinearLayout)
     }
 
-    private fun addBitmapsToLine(bitmaps: List<Bitmap>, lineLinearLayout: ViewGroup) {
+    private fun addBitmapsToLine(bitmaps: List<Bitmap>, rowLinearLayout: ViewGroup) {
         if (bitmaps.isEmpty())
             return
 
-        lineLinearLayout.removeAllViews()
+        rowLinearLayout.removeAllViews()
+        rowLinearLayout.setBackgroundColor(mBackgroundColor)
 
         val widthSum = bitmaps.sumBy { bitmap -> bitmap.width }
 
@@ -154,7 +206,7 @@ class ImageCollectionView @JvmOverloads constructor(
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
             imageView.setImageBitmap(bitmap)
 
-            if (mPinchToZoom && context is Activity) {
+            if (pinchToZoom && context is Activity) {
                 Zoomy.Builder(context as Activity).target(imageView).tapListener {
                     mHashBitmapOnClick[bitmap]?.let { bmp ->
                         bmp.onClicked(bitmap, imageView)
@@ -166,24 +218,62 @@ class ImageCollectionView @JvmOverloads constructor(
                 }
             }
 
-            val proportion = bitmap.width / widthSum.toFloat()
-            val widthBmp = (width * proportion).toInt()
+            val proportion = (bitmap.width / widthSum.toFloat())
+            val widthBmp = ((width * proportion).toInt()) - (2 * imageMargin)
+            val heightBmp = baseImageHeight - (2 * imageMargin)
 
-            val params = LayoutParams(widthBmp, mBaseHeight)
-            params.setMargins(mImageMargin, mImageMargin, mImageMargin, mImageMargin)
-            lineLinearLayout.addView(imageView, params)
+            val params = LayoutParams(widthBmp, heightBmp)
+            params.setMargins(imageMargin, imageMargin, imageMargin, imageMargin)
+
+            rowLinearLayout.addView(imageView, params)
 
             mHashBitmapImageView[bitmap] = imageView
         }
     }
 
-    private fun createNewLine(): LinearLayout {
+    private fun createNewRow(): LinearLayout {
         val linearLayout = LinearLayout(context)
         linearLayout.orientation = HORIZONTAL
 
         val params = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         addView(linearLayout, params)
         return linearLayout
+    }
+
+    private fun removeOutsideMargins() {
+        if (showExternalBorderMargins)
+            return
+
+        for (i in 0 until childCount) {
+            val row = getChildAt(i) as LinearLayout
+            val rowChildCount = row.childCount
+            for (j in 0 until rowChildCount) {
+                val image = row.getChildAt(j)
+                val layoutParams = image.layoutParams as LayoutParams
+
+                if (i == 0) {
+                    layoutParams.topMargin = 0
+                    layoutParams.height = layoutParams.height + imageMargin
+                }
+
+                if (i == childCount - 1) {
+                    layoutParams.bottomMargin = 0
+                    layoutParams.height = layoutParams.height + imageMargin
+                }
+
+                if (j == 0) {
+                    layoutParams.leftMargin = 0
+                    layoutParams.width = layoutParams.width + imageMargin
+                }
+
+                if (j == rowChildCount - 1) {
+                    layoutParams.rightMargin = 0
+                    layoutParams.width = layoutParams.width + imageMargin
+                }
+
+                image.layoutParams = layoutParams
+            }
+        }
     }
 
     interface OnImageClickListener {
