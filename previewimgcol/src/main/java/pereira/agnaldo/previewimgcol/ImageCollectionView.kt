@@ -8,9 +8,13 @@ import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.graphics.drawable.toBitmap
+import android.renderscript.Allocation
+import android.renderscript.Element
+import android.renderscript.RenderScript
+import android.renderscript.ScriptIntrinsicBlur
 import com.ablanco.zoomy.Zoomy
-import kotlin.collections.ArrayList
-
+import kotlin.math.roundToInt
 
 class ImageCollectionView @JvmOverloads constructor(
     context: Context,
@@ -166,9 +170,17 @@ class ImageCollectionView @JvmOverloads constructor(
                 val newLine = createNewRow()
                 addBitmapsToLine(bitmaps, newLine)
             } else {
-
+                addThereAreMore()
             }
         }
+    }
+
+    private fun addThereAreMore() {
+        val lastRow = getChildAt(childCount - 1) as LinearLayout
+        val lastImage = lastRow.getChildAt(lastRow.childCount - 1) as ImageView
+        val bitmap = lastImage.drawable.toBitmap()
+
+        lastImage.setImageBitmap(blur(bitmap))
     }
 
     private fun reEvaluateLastRow(bitmap: Bitmap) {
@@ -208,9 +220,7 @@ class ImageCollectionView @JvmOverloads constructor(
 
             if (pinchToZoom && context is Activity) {
                 Zoomy.Builder(context as Activity).target(imageView).tapListener {
-                    mHashBitmapOnClick[bitmap]?.let { bmp ->
-                        bmp.onClicked(bitmap, imageView)
-                    }
+                    mHashBitmapOnClick[bitmap]?.onClicked(bitmap, imageView)
                 }.register()
             } else {
                 mHashBitmapOnClick[bitmap]?.let { bmp ->
@@ -249,8 +259,8 @@ class ImageCollectionView @JvmOverloads constructor(
             val rowChildCount = row.childCount
             for (j in 0 until rowChildCount) {
                 val image = row.getChildAt(j)
-                val layoutParams = image.layoutParams as LayoutParams
 
+                val layoutParams = image.layoutParams as LayoutParams
                 if (i == 0) {
                     layoutParams.topMargin = 0
                     layoutParams.height = layoutParams.height + imageMargin
@@ -274,6 +284,29 @@ class ImageCollectionView @JvmOverloads constructor(
                 image.layoutParams = layoutParams
             }
         }
+    }
+
+    private fun blur(image: Bitmap): Bitmap {
+
+        val bitmapScale = 0.4f
+        val blurRadius = 15.5f
+
+        val width = (image.width * bitmapScale).roundToInt()
+        val height = (image.height * bitmapScale).roundToInt()
+
+        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
+        val outputBitmap = Bitmap.createBitmap(inputBitmap)
+
+        val rs = RenderScript.create(context)
+        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
+        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
+        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
+        theIntrinsic.setRadius(blurRadius)
+        theIntrinsic.setInput(tmpIn)
+        theIntrinsic.forEach(tmpOut)
+        tmpOut.copyTo(outputBitmap)
+
+        return outputBitmap
     }
 
     interface OnImageClickListener {
