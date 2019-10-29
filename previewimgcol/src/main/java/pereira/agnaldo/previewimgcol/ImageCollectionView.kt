@@ -2,8 +2,7 @@ package pereira.agnaldo.previewimgcol
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Color
+import android.graphics.*
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -13,8 +12,12 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
+import androidx.core.view.size
 import com.ablanco.zoomy.Zoomy
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
+
 
 class ImageCollectionView @JvmOverloads constructor(
     context: Context,
@@ -180,7 +183,45 @@ class ImageCollectionView @JvmOverloads constructor(
         val lastImage = lastRow.getChildAt(lastRow.childCount - 1) as ImageView
         val bitmap = lastImage.drawable.toBitmap()
 
-        lastImage.setImageBitmap(blur(bitmap))
+        val bluredBitmap = blur(bitmap)
+
+        var canvas = Canvas(bluredBitmap)
+
+        val imageWidth = canvas.width.toFloat()
+        val imageHeight = canvas.height.toFloat()
+
+        val paintText = Paint()
+        paintText.color = Color.WHITE
+        paintText.style = Paint.Style.FILL_AND_STROKE
+        paintText.textAlign = Paint.Align.CENTER
+
+        val text = "+ 10T"
+        var textHeight = 150
+        var textWidth = 0f
+
+        paintText.textSize = textHeight.toFloat()
+
+        var bounds = Rect()
+        paintText.getTextBounds(text, 0, text.length, bounds)
+        var h = bounds.bottom - bounds.top
+        var target = imageHeight * .3f
+        var size = ((target / h) * 100f)
+        paintText.textSize = size
+
+        val paint = Paint()
+        paint.color = Color.TRANSPARENT
+
+        val rect = Rect(0, 0, imageWidth.toInt(), imageHeight.toInt())
+        canvas.drawRect(rect, paint)
+
+        canvas.drawText(
+            text,
+            rect.centerX().toFloat(),
+            rect.centerY().toFloat() + textHeight / 2f,
+            paintText
+        )
+
+        lastImage.setImageBitmap(bluredBitmap)
     }
 
     private fun reEvaluateLastRow(bitmap: Bitmap) {
