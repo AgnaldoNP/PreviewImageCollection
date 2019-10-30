@@ -12,10 +12,7 @@ import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
-import androidx.core.view.size
 import com.ablanco.zoomy.Zoomy
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 
@@ -33,6 +30,7 @@ class ImageCollectionView @JvmOverloads constructor(
     private val mBitmaps: ArrayList<Bitmap>
     private val mHashBitmapOnClick: HashMap<Bitmap, OnImageClickListener>
     private val mHashBitmapImageView: HashMap<Bitmap, ImageView>
+    private var onMoreClickListener: OnMoreClickListener? = null
 
     var maxImagePerRow = 3
         set(value) {
@@ -139,6 +137,10 @@ class ImageCollectionView @JvmOverloads constructor(
         invalidate()
     }
 
+    fun setOnMoreClicked(onMoreClickListener: OnMoreClickListener) {
+        this.onMoreClickListener = onMoreClickListener;
+    }
+
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         post { clearAndReloadBitmaps() }
@@ -181,43 +183,47 @@ class ImageCollectionView @JvmOverloads constructor(
     private fun addThereAreMore() {
         val lastRow = getChildAt(childCount - 1) as LinearLayout
         val lastImage = lastRow.getChildAt(lastRow.childCount - 1) as ImageView
+
+        Zoomy.unregister(lastImage)
+        val lastImageIndice = childCount * maxImagePerRow
+
+        onMoreClickListener?.let {
+            lastImage.setOnClickListener {
+                onMoreClickListener!!.onMoreClicked(
+                    mBitmaps.subList(
+                        lastImageIndice - 1,
+                        mBitmaps.size
+                    )
+                )
+            }
+        }
+
         val bitmap = lastImage.drawable.toBitmap()
 
         val bluredBitmap = blur(bitmap)
 
         var canvas = Canvas(bluredBitmap)
 
-        val imageWidth = canvas.width.toFloat()
-        val imageHeight = canvas.height.toFloat()
-
         val paintText = Paint()
         paintText.color = Color.WHITE
         paintText.style = Paint.Style.FILL_AND_STROKE
         paintText.textAlign = Paint.Align.CENTER
 
-        val text = "+ 10T"
-        var textHeight = 150
-        var textWidth = 0f
-
-        paintText.textSize = textHeight.toFloat()
-
-        var bounds = Rect()
-        paintText.getTextBounds(text, 0, text.length, bounds)
-        var h = bounds.bottom - bounds.top
-        var target = imageHeight * .3f
-        var size = ((target / h) * 100f)
-        paintText.textSize = size
+        val text = "+".plus(mBitmaps.size - lastImageIndice + 1)
+        var textSize = 130f
+        paintText.textSize = 130f
 
         val paint = Paint()
-        paint.color = Color.TRANSPARENT
+        paint.color = Color.argb(100, 0, 0, 0)
+        paint.maskFilter = BlurMaskFilter(300F, BlurMaskFilter.Blur.INNER)
 
-        val rect = Rect(0, 0, imageWidth.toInt(), imageHeight.toInt())
+        val rect = Rect(0, 0, canvas.width, canvas.height)
         canvas.drawRect(rect, paint)
 
         canvas.drawText(
             text,
             rect.centerX().toFloat(),
-            rect.centerY().toFloat() + textHeight / 2f,
+            rect.centerY().toFloat() + textSize / 2f,
             paintText
         )
 
@@ -261,11 +267,11 @@ class ImageCollectionView @JvmOverloads constructor(
 
             if (pinchToZoom && context is Activity) {
                 Zoomy.Builder(context as Activity).target(imageView).tapListener {
-                    mHashBitmapOnClick[bitmap]?.onClicked(bitmap, imageView)
+                    mHashBitmapOnClick[bitmap]?.onClick(bitmap, imageView)
                 }.register()
             } else {
                 mHashBitmapOnClick[bitmap]?.let { bmp ->
-                    imageView.setOnClickListener { bmp.onClicked(bitmap, imageView) }
+                    imageView.setOnClickListener { bmp.onClick(bitmap, imageView) }
                 }
             }
 
@@ -351,7 +357,11 @@ class ImageCollectionView @JvmOverloads constructor(
     }
 
     interface OnImageClickListener {
-        fun onClicked(bitmap: Bitmap, imageView: ImageView)
+        fun onClick(bitmap: Bitmap, imageView: ImageView)
+    }
+
+    interface OnMoreClickListener {
+        fun onMoreClicked(bitmaps: List<Bitmap>)
     }
 
 }

@@ -115,11 +115,9 @@ class MainActivity : AppCompatActivity() {
             collectionView.showExternalBorderMargins = isChecked
         }
 
-
-
         collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_08),
             object : ImageCollectionView.OnImageClickListener {
-                override fun onClicked(bitmap: Bitmap, imageView: ImageView) {
+                override fun onClick(bitmap: Bitmap, imageView: ImageView) {
                     Toast.makeText(imageView.context, "Test Click image 08", Toast.LENGTH_LONG)
                         .show()
                 }
@@ -132,5 +130,14 @@ class MainActivity : AppCompatActivity() {
         collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_04))
         collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_06))
         collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_07))
+
+        collectionView.setOnMoreClicked(
+            object : ImageCollectionView.OnMoreClickListener {
+                override fun onMoreClicked(bitmaps: List<Bitmap>) {
+                    Toast.makeText(collectionView.context, "oi oi oi oi ", Toast.LENGTH_LONG)
+                        .show()
+                }
+            }
+        )
     }
 }
