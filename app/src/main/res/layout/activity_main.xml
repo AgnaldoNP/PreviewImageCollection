@@ -149,6 +149,12 @@
             android:checked="true"
             android:text="Enable Pinch to Zoom" />
 
+        <Button
+            android:id="@+id/add_photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Photo" />
+
         <pereira.agnaldo.previewimgcol.ImageCollectionView
             android:id="@+id/imageCollectionView"
             android:layout_width="match_parent"

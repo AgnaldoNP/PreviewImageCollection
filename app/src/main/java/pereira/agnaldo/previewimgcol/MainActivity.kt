@@ -6,11 +6,9 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.CheckBox
-import android.widget.ImageView
-import android.widget.SeekBar
+import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.Toast
+import com.ivan200.photobarcodelib.PhotoBarcodeScannerBuilder
 
 class MainActivity : AppCompatActivity() {
 
@@ -23,6 +21,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var maxRows: SeekBar
     private lateinit var pinchToZoom: CheckBox
     private lateinit var showExternalBoards: CheckBox
+
+    private lateinit var addPhoto: Button
 
     val Int.dp: Int
         get() = (this / Resources.getSystem().displayMetrics.density).toInt()
@@ -43,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         maxRows = findViewById(R.id.maxRows)
         pinchToZoom = findViewById(R.id.pinchToZoom)
         showExternalBoards = findViewById(R.id.showExternalBorderMargins)
+        addPhoto = findViewById(R.id.add_photo)
 
         backgroundColor.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -115,7 +116,26 @@ class MainActivity : AppCompatActivity() {
             collectionView.showExternalBorderMargins = isChecked
         }
 
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_08),
+        addPhoto.setOnClickListener {
+            PhotoBarcodeScannerBuilder()
+                .withActivity(this)
+                .withTakingPictureMode()
+                .withAutoFocus(true)
+                .withFocusOnTap(true)
+                .withCameraLockRotate(false)
+                .withThumbnails(false)
+                .withCameraTryFixOrientation(true)
+                .withImageLargerSide(1200)
+                .withPictureListener { file ->
+                    if (file.exists()) {
+                        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                        collectionView.addImage(bitmap)
+                        file.delete()
+                    }
+                }.build().start()
+        }
+
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_08),
             object : ImageCollectionView.OnImageClickListener {
                 override fun onClick(bitmap: Bitmap, imageView: ImageView) {
                     Toast.makeText(imageView.context, "Test Click image 08", Toast.LENGTH_LONG)
@@ -123,13 +143,13 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_01))
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_02))
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_05))
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_03))
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_04))
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_06))
-        collectionView.addBitmap(BitmapFactory.decodeResource(resources, R.drawable.landscape_07))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_01))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_02))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_05))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_03))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_04))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_06))
+        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_07))
 
         collectionView.setOnMoreClicked(
             object : ImageCollectionView.OnMoreClickListener {

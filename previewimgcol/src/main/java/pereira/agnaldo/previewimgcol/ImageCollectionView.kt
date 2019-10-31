@@ -3,6 +3,7 @@ package pereira.agnaldo.previewimgcol
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -125,13 +126,31 @@ class ImageCollectionView @JvmOverloads constructor(
         }
     }
 
-    fun addBitmap(bitmap: Bitmap) {
-        addBitmap(bitmap, null)
+    fun addImage(drawable: Int) {
+        addImage(drawable)
     }
 
-    fun addBitmap(bitmap: Bitmap, onClick: OnImageClickListener?) {
-        reEvaluateLastRow(bitmap)
+    fun addImage(drawable: Int, onClick: OnImageClickListener?) {
+        context.getDrawable(drawable)?.let {
+            addImage(it.toBitmap(), onClick)
+        }
+    }
+
+    fun addImage(drawable: Drawable) {
+        addImage(drawable)
+    }
+
+    fun addImage(drawable: Drawable, onClick: OnImageClickListener?) {
+        addImage(drawable.toBitmap(), onClick)
+    }
+
+    fun addImage(bitmap: Bitmap) {
+        addImage(bitmap, null)
+    }
+
+    fun addImage(bitmap: Bitmap, onClick: OnImageClickListener?) {
         mBitmaps.add(bitmap)
+        reEvaluateLastRow(bitmap)
         onClick?.let { mHashBitmapOnClick.put(bitmap, it) }
         removeOutsideMargins()
         invalidate()
@@ -198,11 +217,11 @@ class ImageCollectionView @JvmOverloads constructor(
             }
         }
 
-        val bitmap = lastImage.drawable.toBitmap()
+        val bitmap = mBitmaps[(maxRows * maxImagePerRow) - 1]
 
-        val bluredBitmap = blur(bitmap)
+        val blurredBitmap = blur(bitmap)
 
-        var canvas = Canvas(bluredBitmap)
+        val canvas = Canvas(blurredBitmap)
 
         val paintText = Paint()
         paintText.color = Color.WHITE
@@ -227,7 +246,7 @@ class ImageCollectionView @JvmOverloads constructor(
             paintText
         )
 
-        lastImage.setImageBitmap(bluredBitmap)
+        lastImage.setImageBitmap(blurredBitmap)
     }
 
     private fun reEvaluateLastRow(bitmap: Bitmap) {
@@ -238,16 +257,20 @@ class ImageCollectionView @JvmOverloads constructor(
         val lineLinearLayout = getChildAt(childCount - 1) as ViewGroup
         val lineChildCount = lineLinearLayout.childCount
         if (lineChildCount == maxImagePerRow) {
-            createNewRow()
-            reEvaluateLastRow(bitmap)
+            val maxImages = maxRows * maxImagePerRow
+            val imagesCount = childCount * maxImagePerRow
+            if (imagesCount < maxImages) {
+                createNewRow()
+                reEvaluateLastRow(bitmap)
+            } else {
+                addThereAreMore()
+            }
             return
         }
 
         val bitmaps = mBitmaps.subList(
-            mBitmaps.size - lineChildCount, mBitmaps.size
+            mBitmaps.size - lineChildCount - 1, mBitmaps.size
         )
-        bitmaps.add(bitmap)
-
         addBitmapsToLine(bitmaps, lineLinearLayout)
     }
 
