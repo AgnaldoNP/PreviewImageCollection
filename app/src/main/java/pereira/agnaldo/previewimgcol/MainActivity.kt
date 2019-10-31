@@ -4,10 +4,10 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.*
 import android.widget.SeekBar.OnSeekBarChangeListener
+import androidx.appcompat.app.AppCompatActivity
 import com.ivan200.photobarcodelib.PhotoBarcodeScannerBuilder
 
 class MainActivity : AppCompatActivity() {
@@ -151,13 +151,11 @@ class MainActivity : AppCompatActivity() {
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_06))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_07))
 
-        collectionView.setOnMoreClicked(
-            object : ImageCollectionView.OnMoreClickListener {
-                override fun onMoreClicked(bitmaps: List<Bitmap>) {
-                    Toast.makeText(collectionView.context, "oi oi oi oi ", Toast.LENGTH_LONG)
-                        .show()
-                }
+        collectionView.setOnMoreClicked(object : ImageCollectionView.OnMoreClickListener {
+            override fun onMoreClicked(bitmaps: List<Bitmap>) {
+                Toast.makeText(collectionView.context, "oi oi oi oi ", Toast.LENGTH_LONG)
+                    .show()
             }
-        )
+        })
     }
 }

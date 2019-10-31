@@ -163,6 +163,8 @@
             app:backgroundColor="@color/colorAccent"
             app:baseRowHeight="150dp"
             app:imageMargin="2dp"
+            app:pinchToZoom="true"
+            app:showExternalBorderMargins="true"
             app:maxImagePerRow="3"
             app:maxRows="2" />
 
