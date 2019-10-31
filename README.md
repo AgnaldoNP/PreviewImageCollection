@@ -24,7 +24,7 @@ dependencies {
   implementation 'com.github.AgnaldoNP:PreviewImageCollection:1.0'
 }
 ```
-[![](https://jitpack.io/v/AgnaldoNP/FingerSignView.svg)](https://jitpack.io/#AgnaldoNP/FingerSignView)
+[![](https://jitpack.io/v/AgnaldoNP/PreviewImageCollection.svg)](https://jitpack.io/#AgnaldoNP/PreviewImageCollection)
 
 
 ## Usage
