@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var showExternalBoards: CheckBox
 
     private lateinit var addPhoto: Button
+    private lateinit var clearPhotos: Button
 
     val Int.dp: Int
         get() = (this / Resources.getSystem().displayMetrics.density).toInt()
@@ -44,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         pinchToZoom = findViewById(R.id.pinchToZoom)
         showExternalBoards = findViewById(R.id.showExternalBorderMargins)
         addPhoto = findViewById(R.id.add_photo)
+        clearPhotos = findViewById(R.id.clear_photos)
 
         backgroundColor.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -133,6 +135,10 @@ class MainActivity : AppCompatActivity() {
                         file.delete()
                     }
                 }.build().start()
+        }
+
+        clearPhotos.setOnClickListener {
+            collectionView.clearImages()
         }
 
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_08),

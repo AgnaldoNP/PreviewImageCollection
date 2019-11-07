@@ -148,11 +148,27 @@ class ImageCollectionView @JvmOverloads constructor(
         addImage(bitmap, null)
     }
 
+    fun addImages(bitmaps: ArrayList<Bitmap>) {
+        bitmaps.forEach { bmp -> addImage(bmp) }
+    }
+
     fun addImage(bitmap: Bitmap, onClick: OnImageClickListener?) {
         mBitmaps.add(bitmap)
         reEvaluateLastRow(bitmap)
         onClick?.let { mHashBitmapOnClick.put(bitmap, it) }
         removeOutsideMargins()
+        invalidate()
+    }
+
+    fun clearImages() {
+        mBitmaps.clear()
+        removeAllViews()
+        invalidate()
+    }
+
+    fun removeImage(bitmap: Bitmap) {
+        mBitmaps.remove(bitmap)
+        clearAndReloadBitmaps()
         invalidate()
     }
 
@@ -252,6 +268,10 @@ class ImageCollectionView @JvmOverloads constructor(
     private fun reEvaluateLastRow(bitmap: Bitmap) {
         if (width == 0) {
             return
+        }
+
+        if (childCount == 0) {
+            createNewRow()
         }
 
         val lineLinearLayout = getChildAt(childCount - 1) as ViewGroup
@@ -377,6 +397,14 @@ class ImageCollectionView @JvmOverloads constructor(
         tmpOut.copyTo(outputBitmap)
 
         return outputBitmap
+    }
+
+    fun getImageAt(index: Int): Bitmap {
+        return mBitmaps[index]
+    }
+
+    fun getNullableImageAt(index: Int): Bitmap? {
+        return if (index < mBitmaps.size) mBitmaps[index] else null
     }
 
     interface OnImageClickListener {

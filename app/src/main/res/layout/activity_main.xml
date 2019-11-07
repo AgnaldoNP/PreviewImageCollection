@@ -155,6 +155,12 @@
             android:layout_height="wrap_content"
             android:text="Add Photo" />
 
+        <Button
+            android:id="@+id/clear_photos"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Clear Images" />
+
         <pereira.agnaldo.previewimgcol.ImageCollectionView
             android:id="@+id/imageCollectionView"
             android:layout_width="match_parent"
