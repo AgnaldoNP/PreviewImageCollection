@@ -30,6 +30,7 @@ class ImageCollectionView @JvmOverloads constructor(
 
     private val mBitmaps: ArrayList<Bitmap>
     private val mHashBitmapOnClick: HashMap<Bitmap, OnImageClickListener>
+    private val mHashBitmapOnLongClick: HashMap<Bitmap, OnImageLongClickListener>
     private val mHashBitmapImageView: HashMap<Bitmap, ImageView>
     private var onMoreClickListener: OnMoreClickListener? = null
 
@@ -81,6 +82,7 @@ class ImageCollectionView @JvmOverloads constructor(
         mBitmaps = ArrayList()
         mHashBitmapOnClick = hashMapOf()
         mHashBitmapImageView = hashMapOf()
+        mHashBitmapOnLongClick = hashMapOf()
 
         getStyles(attrs, defStyleAttr)
     }
@@ -152,16 +154,24 @@ class ImageCollectionView @JvmOverloads constructor(
         bitmaps.forEach { bmp -> addImage(bmp) }
     }
 
-    fun addImage(bitmap: Bitmap, onClick: OnImageClickListener?) {
+    fun addImage(
+        bitmap: Bitmap,
+        onClick: OnImageClickListener? = null,
+        onLongClick: OnImageLongClickListener? = null
+    ) {
         mBitmaps.add(bitmap)
         reEvaluateLastRow(bitmap)
         onClick?.let { mHashBitmapOnClick.put(bitmap, it) }
+        onLongClick?.let { mHashBitmapOnLongClick.put(bitmap, it) }
         removeOutsideMargins()
         invalidate()
     }
 
     fun clearImages() {
         mBitmaps.clear()
+        mHashBitmapOnLongClick.clear()
+        mHashBitmapOnLongClick.clear()
+        mHashBitmapImageView.clear()
         removeAllViews()
         invalidate()
     }
@@ -311,10 +321,18 @@ class ImageCollectionView @JvmOverloads constructor(
             if (pinchToZoom && context is Activity) {
                 Zoomy.Builder(context as Activity).target(imageView).tapListener {
                     mHashBitmapOnClick[bitmap]?.onClick(bitmap, imageView)
+                }.longPressListener {
+                    mHashBitmapOnLongClick[bitmap]?.onLongClick(bitmap, imageView)
                 }.register()
             } else {
                 mHashBitmapOnClick[bitmap]?.let { bmp ->
                     imageView.setOnClickListener { bmp.onClick(bitmap, imageView) }
+                }
+                mHashBitmapOnLongClick[bitmap]?.let { bmp ->
+                    imageView.setOnLongClickListener {
+                        bmp.onLongClick(bitmap, imageView)
+                        true
+                    }
                 }
             }
 
@@ -409,6 +427,10 @@ class ImageCollectionView @JvmOverloads constructor(
 
     interface OnImageClickListener {
         fun onClick(bitmap: Bitmap, imageView: ImageView)
+    }
+
+    interface OnImageLongClickListener {
+        fun onLongClick(bitmap: Bitmap, imageView: ImageView)
     }
 
     interface OnMoreClickListener {

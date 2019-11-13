@@ -149,7 +149,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         )
-        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_01))
+        collectionView.addImage(
+            BitmapFactory.decodeResource(resources, R.drawable.landscape_01),
+            onLongClick = object : ImageCollectionView.OnImageLongClickListener {
+                override fun onLongClick(bitmap: Bitmap, imageView: ImageView) {
+                    Toast.makeText(imageView.context, "Long Click", Toast.LENGTH_LONG)
+                        .show()
+                }
+            })
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_02))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_05))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_03))
