@@ -15,15 +15,12 @@ pipeline {
         stage('Unit & Integration Tests') {
             steps {
                 script {
-                    sh './gradlew assemble' //run a gradle task
+                    sh 'export ANDROID_SERIAL=0047758577 ; ./gradlew assemble'
+                    step([$class: 'ArtifactArchiver', artifacts: 'meu_aplicativo/build/outputs/apk/meu_aplicativo.apk'])
+
                 }
             }
         }
 
-        stage('Publish Artifact to Nexus') {
-            steps {
-                sh './gradlew publish --no-daemon'
-            }
-        }
     }
 }
