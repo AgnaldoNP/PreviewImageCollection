@@ -27,7 +27,9 @@ android {
     }
 
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
+        lintConfig file("../lint.xml")
     }
 }
 
