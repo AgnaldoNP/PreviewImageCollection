@@ -15,12 +15,7 @@ pipeline {
         stage('Unit & Integration Tests') {
             steps {
                 script {
-                    try {
-                        sh './gradlew clean assembleDebug --no-daemon' //run a gradle task
-                    } finally {
-                        junit '**/build/test-results/test/*.xml'
-                        //make the junit test results available in any case (success & failure)
-                    }
+                    sh './gradlew clean app:assembleDebug --no-daemon' //run a gradle task
                 }
             }
         }
@@ -31,12 +26,4 @@ pipeline {
             }
         }
     }
-    post {
-        always { //Send an email to the person that broke the build
-            step([$class                  : 'Mailer',
-                  notifyEveryUnstableBuild: true,
-                  recipients              : [emailextrecipients([[$class: 'CulpritsRecipientProvider'], [$class: 'RequesterRecipientProvider']])].join(' ')])
-        }
-    }
-
 }
