@@ -6,7 +6,7 @@ node() {
 
 stage 'Build & Archive Apk'
 node() {
-    sh 'export ANDROID_SERIAL=0047758577 ; ./gradlew'
+    sh 'export ANDROID_SERIAL=0047758577 ; ./gradlew app:assembleDebug'
     step([$class: 'ArtifactArchiver', artifacts: 'app/build/outputs/apk/debug/app-debug.apk'])
 }
 
