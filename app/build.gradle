@@ -26,10 +26,6 @@ android {
         }
     }
 
-    lintOptions {
-        abortOnError false
-    }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -52,6 +48,10 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/LICENSE-FIREBASE.txt'
         exclude 'protobuf.meta'
+    }
+
+    lintOptions {
+        abortOnError false
     }
 }
 
