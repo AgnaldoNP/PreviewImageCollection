@@ -15,7 +15,7 @@ pipeline {
         stage('Unit & Integration Tests') {
             steps {
                 script {
-                    sh './gradlew clean app:assembleDebug --no-daemon' //run a gradle task
+                    sh './gradlew tasks' //run a gradle task
                 }
             }
         }
