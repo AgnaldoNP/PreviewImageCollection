@@ -15,8 +15,8 @@ pipeline {
         stage('Unit & Integration Tests') {
             steps {
                 script {
-                    sh 'export ANDROID_SERIAL=0047758577 ; ./gradlew assemble'
-                    step([$class: 'ArtifactArchiver', artifacts: '**/app/build/outputs/apk/debug/app-debug.apk'])
+                    sh 'export ANDROID_SERIAL=0047758577 ; ./gradlew assemble ; ls app/build/outputs/apk/debug/'
+//                    step([$class: 'ArtifactArchiver', artifacts: 'app/build/outputs/apk/debug/app-debug.apk'])
 
                 }
             }
