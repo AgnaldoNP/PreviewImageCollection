@@ -15,7 +15,7 @@ pipeline {
         stage('Unit & Integration Tests') {
             steps {
                 script {
-                    sh './gradlew tasks' //run a gradle task
+                    sh './gradlew assembleDebug' //run a gradle task
                 }
             }
         }
