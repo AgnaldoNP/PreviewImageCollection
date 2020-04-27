@@ -46,15 +46,16 @@ Sample of usage
 
 ```
 ### Options
-| Property                  | Value type        | Default |
-|---------------------------|-------------------|---------|
-| backgroundColor           | color             | #FFFFFF |
-| baseRowHeight             | dimension         | 150dp   |
-| imageMargin               | dimension         | 1dp     |
-| pinchToZoom               | boolean           | true    |
-| showExternalBorderMargins | boolean           | true    |
-| maxImagePerRow            | integer           | 3       |
-| maxRows                   | integer           | 3       |
+| Property                  | Value type        | Default     |
+|---------------------------|-------------------|-------------|
+| backgroundColor           | color             | #FFFFFF     |
+| baseRowHeight             | dimension         | 150dp       |
+| imageMargin               | dimension         | 1dp         |
+| pinchToZoom               | boolean           | true        |
+| showExternalBorderMargins | boolean           | true        |
+| maxImagePerRow            | integer           | 3           |
+| maxRows                   | integer           | 3           |
+| imageScaleType            | enum              | center_crop |
 
 
 ### Programmatically
@@ -85,14 +86,20 @@ Sample of usage
             Toast.makeText(imageView.context, "Test Click on image ...", Toast.LENGTH_LONG).show()
         }
     })
+    // or simply
+    collectionView.addImage(bitmap2, { bitmap: Bitmap?, imageView: ImageView? ->
+        Toast.makeText(context, "Test Click on image ...", Toast.LENGTH_LONG).show()
+    })
     
     collectionView.setOnMoreClicked(object : ImageCollectionView.OnMoreClickListener {
         override fun onMoreClicked(bitmaps: List<Bitmap>) {
-            Toast.makeText(collectionView.context, "on mode clicked ", Toast.LENGTH_LONG)
-                .show()
+            Toast.makeText(collectionView.context, "on more clicked ", Toast.LENGTH_LONG).show()
         }
     })
-
+    // or simply
+    collectionView.setOnMoreClicked { bitmaps ->
+        Toast.makeText(collectionView.context, "on more clicked ", Toast.LENGTH_LONG).show()
+    }
 ``` 
 
 ```java
@@ -109,7 +116,7 @@ Sample of usage
     imageCollectionView.setOnMoreClicked(bitmaps -> {
         Toast.makeText(context, "OnMoreClicked", Toast.LENGTH_LONG).show();
     });
-``` 
+```
 
 
 ## Contributions and Support

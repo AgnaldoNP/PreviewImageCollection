@@ -157,8 +157,13 @@ class MainActivity : AppCompatActivity() {
                         .show()
                 }
             })
-        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_02))
+        collectionView.addImage(R.drawable.landscape_02, { bitmap: Bitmap?, imageView: ImageView? ->
+            Toast.makeText(this, "landscape_02", Toast.LENGTH_LONG).show()
+        })
+
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_05))
+
+
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_03))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_04))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_06))
@@ -170,5 +175,9 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
         })
+
+        collectionView.setOnMoreClicked { bitmaps ->
+
+        }
     }
 }

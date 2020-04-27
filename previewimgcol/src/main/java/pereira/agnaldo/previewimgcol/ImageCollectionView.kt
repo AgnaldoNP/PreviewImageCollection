@@ -1,19 +1,23 @@
+@file:Suppress("MemberVisibilityCanBePrivate", "unused")
+
 package pereira.agnaldo.previewimgcol
 
 import android.app.Activity
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
-import android.util.AttributeSet
-import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.LinearLayout
-import androidx.core.graphics.drawable.toBitmap
+import android.net.Uri
 import android.renderscript.Allocation
 import android.renderscript.Element
 import android.renderscript.RenderScript
 import android.renderscript.ScriptIntrinsicBlur
+import android.util.AttributeSet
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.LinearLayout
 import com.ablanco.zoomy.Zoomy
+import com.bumptech.glide.Glide
+import java.io.File
 import kotlin.math.roundToInt
 
 
@@ -28,11 +32,10 @@ class ImageCollectionView @JvmOverloads constructor(
         const val NO_ROW_LIMITS = -1
     }
 
-    private val mBitmaps: ArrayList<Bitmap>
-    private val mHashBitmapOnClick: HashMap<Bitmap, OnImageClickListener>
-    private val mHashBitmapOnLongClick: HashMap<Bitmap, OnImageLongClickListener>
-    private val mHashBitmapImageView: HashMap<Bitmap, ImageView>
+    private val previewImages: ArrayList<PreviewImage>
+
     private var onMoreClickListener: OnMoreClickListener? = null
+    private var onMoreClickListenerUnit: ((List<Bitmap>) -> Unit)? = null
 
     var maxImagePerRow = 3
         set(value) {
@@ -64,6 +67,12 @@ class ImageCollectionView @JvmOverloads constructor(
             clearAndReloadBitmaps()
         }
 
+    var scaleType = ImageView.ScaleType.CENTER_CROP
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
     var pinchToZoom = true
         set(value) {
             field = value
@@ -79,11 +88,7 @@ class ImageCollectionView @JvmOverloads constructor(
     init {
         orientation = VERTICAL
 
-        mBitmaps = ArrayList()
-        mHashBitmapOnClick = hashMapOf()
-        mHashBitmapImageView = hashMapOf()
-        mHashBitmapOnLongClick = hashMapOf()
-
+        previewImages = ArrayList()
         getStyles(attrs, defStyleAttr)
     }
 
@@ -111,6 +116,15 @@ class ImageCollectionView @JvmOverloads constructor(
                 R.styleable.ImageCollectionView_maxRows, maxRows
             )
 
+            val scaleTypeInt = typedArray.getInteger(
+                R.styleable.ImageCollectionView_imageScaleType,
+                ImageView.ScaleType.CENTER_CROP.ordinal
+            )
+
+            ImageView.ScaleType.values().firstOrNull() { it.ordinal == scaleTypeInt }?.let {
+                scaleType = it
+            }
+
             mBackgroundColor = typedArray.getColor(
                 R.styleable.ImageCollectionView_backgroundColor, mBackgroundColor
             )
@@ -128,62 +142,137 @@ class ImageCollectionView @JvmOverloads constructor(
         }
     }
 
-    fun addImage(drawable: Int) {
-        addImage(drawable)
-    }
-
-    fun addImage(drawable: Int, onClick: OnImageClickListener?) {
-        context.getDrawable(drawable)?.let {
-            addImage(it.toBitmap(), onClick)
-        }
-    }
-
-    fun addImage(drawable: Drawable) {
-        addImage(drawable)
-    }
-
-    fun addImage(drawable: Drawable, onClick: OnImageClickListener?) {
-        addImage(drawable.toBitmap(), onClick)
-    }
-
-    fun addImage(bitmap: Bitmap) {
-        addImage(bitmap, null)
-    }
-
-    fun addImages(bitmaps: ArrayList<Bitmap>) {
+    fun addImages(bitmaps: ArrayList<Bitmap>) =
         bitmaps.forEach { bmp -> addImage(bmp) }
-    }
+
+    fun addImage(drawableRes: Int) =
+        addImage(PreviewImage(context, drawableRes), onClick = null, onLongClick = null)
+
+    fun addImage(
+        drawableRes: Int,
+        onClick: OnImageClickListener? = null,
+        onLongClick: OnImageLongClickListener? = null
+    ) = addImage(PreviewImage(context, drawableRes), onClick, onLongClick)
+
+    fun addImage(
+        drawableRes: Int,
+        onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
+        onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
+    ) = addImage(PreviewImage(context, drawableRes), onClickUnit, onLongClickUnit)
+
+    fun addImage(drawable: Drawable) =
+        addImage(PreviewImage(context, drawable), onClick = null, onLongClick = null)
+
+    fun addImage(
+        drawable: Drawable,
+        onClick: OnImageClickListener? = null,
+        onLongClick: OnImageLongClickListener? = null
+    ) = addImage(PreviewImage(context, drawable), onClick, onLongClick)
+
+    fun addImage(
+        drawable: Drawable,
+        onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
+        onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
+    ) = addImage(PreviewImage(context, drawable), onClickUnit, onLongClickUnit)
+
+    fun addImage(bitmap: Bitmap) =
+        addImage(PreviewImage(context, bitmap), onClick = null, onLongClick = null)
 
     fun addImage(
         bitmap: Bitmap,
         onClick: OnImageClickListener? = null,
         onLongClick: OnImageLongClickListener? = null
+    ) = addImage(PreviewImage(context, bitmap), onClick, onLongClick)
+
+    fun addImage(
+        bitmap: Bitmap,
+        onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
+        onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
+    ) = addImage(PreviewImage(context, bitmap), onClickUnit, onLongClickUnit)
+
+    fun addImage(bitmapFile: File) =
+        addImage(PreviewImage(context, bitmapFile), onClick = null, onLongClick = null)
+
+    fun addImage(
+        bitmapFile: File,
+        onClick: OnImageClickListener? = null,
+        onLongClick: OnImageLongClickListener? = null
+    ) = addImage(PreviewImage(context, bitmapFile), onClick, onLongClick)
+
+    fun addImage(
+        bitmapFile: File,
+        onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
+        onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
+    ) = addImage(PreviewImage(context, bitmapFile), onClickUnit, onLongClickUnit)
+
+    fun addImage(bitmapUri: Uri) =
+        addImage(PreviewImage(context, bitmapUri), onClick = null, onLongClick = null)
+
+    fun addImage(
+        bitmapUri: Uri,
+        onClick: OnImageClickListener? = null,
+        onLongClick: OnImageLongClickListener? = null
+    ) = addImage(PreviewImage(context, bitmapUri), onClick, onLongClick)
+
+    fun addImage(
+        bitmapUri: Uri,
+        onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
+        onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
+    ) = addImage(PreviewImage(context, bitmapUri), onClickUnit, onLongClickUnit)
+
+    private fun addImage(
+        previewImage: PreviewImage,
+        onClick: OnImageClickListener? = null,
+        onLongClick: OnImageLongClickListener? = null
     ) {
-        mBitmaps.add(bitmap)
-        reEvaluateLastRow(bitmap)
-        onClick?.let { mHashBitmapOnClick.put(bitmap, it) }
-        onLongClick?.let { mHashBitmapOnLongClick.put(bitmap, it) }
+        previewImage.mOnClick = onClick
+        previewImage.mOnLongClick = onLongClick
+        previewImages.add(previewImage)
+
+        afterAddPreviewImage(previewImage)
+    }
+
+    private fun addImage(
+        previewImage: PreviewImage,
+        onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
+        onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
+    ) {
+        previewImage.mOnClickUnit = onClickUnit
+        previewImage.mOnLongClickUnit = onLongClickUnit
+        previewImages.add(previewImage)
+
+        afterAddPreviewImage(previewImage)
+    }
+
+    private fun afterAddPreviewImage(previewImage: PreviewImage) {
+        reEvaluateLastRow(previewImage)
         removeOutsideMargins()
         invalidate()
     }
 
     fun clearImages() {
-        mBitmaps.clear()
-        mHashBitmapOnLongClick.clear()
-        mHashBitmapOnLongClick.clear()
-        mHashBitmapImageView.clear()
+        previewImages.clear()
         removeAllViews()
         invalidate()
     }
 
     fun removeImage(bitmap: Bitmap) {
-        mBitmaps.remove(bitmap)
+        findPreviewImage(bitmap)?.let {
+            previewImages.remove(it)
+        }
         clearAndReloadBitmaps()
         invalidate()
     }
 
+    private fun findPreviewImage(bitmap: Bitmap): PreviewImage? =
+        previewImages.firstOrNull { it.isEquals(bitmap) }
+
     fun setOnMoreClicked(onMoreClickListener: OnMoreClickListener) {
-        this.onMoreClickListener = onMoreClickListener;
+        this.onMoreClickListener = onMoreClickListener
+    }
+
+    fun setOnMoreClicked(onMoreClickListenerUnit: (bitmaps: List<Bitmap>) -> Unit) {
+        this.onMoreClickListenerUnit = onMoreClickListenerUnit
     }
 
     override fun onAttachedToWindow() {
@@ -193,8 +282,8 @@ class ImageCollectionView @JvmOverloads constructor(
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        mBitmaps.forEach { bitmap: Bitmap ->
-            mHashBitmapImageView[bitmap]?.let {
+        previewImages.forEach { previewImage: PreviewImage ->
+            previewImage.mImageView?.let {
                 Zoomy.unregister(it)
             }
         }
@@ -202,23 +291,28 @@ class ImageCollectionView @JvmOverloads constructor(
 
     private fun clearAndReloadBitmaps() {
         removeAllViews()
-        extractAndInflateImagesPerLine(mBitmaps)
+        extractAndInflateImagesPerLine(previewImages)
         removeOutsideMargins()
     }
 
-    private fun extractAndInflateImagesPerLine(bitmaps: List<Bitmap>) {
+    private fun extractAndInflateImagesPerLine(previewImages: List<PreviewImage>) {
         val maxRowReached = maxRows != NO_ROW_LIMITS && childCount == maxRows
 
-        if (!maxRowReached && bitmaps.size > maxImagePerRow) {
+        if (!maxRowReached && previewImages.size > maxImagePerRow) {
             val newLine = createNewRow()
-            addBitmapsToLine(bitmaps.subList(0, maxImagePerRow), newLine)
+            addBitmapsToLine(previewImages.subList(0, maxImagePerRow), newLine)
 
-            extractAndInflateImagesPerLine(bitmaps.subList(maxImagePerRow, bitmaps.size))
+            extractAndInflateImagesPerLine(
+                previewImages.subList(
+                    maxImagePerRow,
+                    previewImages.size
+                )
+            )
             return
         } else {
             if (!maxRowReached) {
                 val newLine = createNewRow()
-                addBitmapsToLine(bitmaps, newLine)
+                addBitmapsToLine(previewImages, newLine)
             } else {
                 addThereAreMore()
             }
@@ -232,50 +326,50 @@ class ImageCollectionView @JvmOverloads constructor(
         Zoomy.unregister(lastImage)
         val lastImageIndice = childCount * maxImagePerRow
 
-        onMoreClickListener?.let {
+        if (onMoreClickListener != null || onMoreClickListenerUnit != null) {
             lastImage.setOnClickListener {
-                onMoreClickListener!!.onMoreClicked(
-                    mBitmaps.subList(
-                        lastImageIndice - 1,
-                        mBitmaps.size
-                    )
-                )
+                val bitmaps = previewImages.subList(
+                    lastImageIndice - 1,
+                    previewImages.size
+                ).mapNotNull { it.asBitmap() }.toList()
+                onMoreClickListener?.onMoreClicked(bitmaps)
+                onMoreClickListenerUnit?.invoke(bitmaps)
             }
         }
 
-        val bitmap = mBitmaps[(maxRows * maxImagePerRow) - 1]
+        previewImages[(maxRows * maxImagePerRow) - 1].asBitmap()?.let {
+            val blurredBitmap = blur(it)
 
-        val blurredBitmap = blur(bitmap)
+            val canvas = Canvas(blurredBitmap)
 
-        val canvas = Canvas(blurredBitmap)
+            val paintText = Paint()
+            paintText.color = Color.WHITE
+            paintText.style = Paint.Style.FILL_AND_STROKE
+            paintText.textAlign = Paint.Align.CENTER
 
-        val paintText = Paint()
-        paintText.color = Color.WHITE
-        paintText.style = Paint.Style.FILL_AND_STROKE
-        paintText.textAlign = Paint.Align.CENTER
+            val text = "+".plus(previewImages.size - lastImageIndice + 1)
+            val textSize = 130f
+            paintText.textSize = 130f
 
-        val text = "+".plus(mBitmaps.size - lastImageIndice + 1)
-        var textSize = 130f
-        paintText.textSize = 130f
+            val paint = Paint()
+            paint.color = Color.argb(100, 0, 0, 0)
+            paint.maskFilter = BlurMaskFilter(300F, BlurMaskFilter.Blur.INNER)
 
-        val paint = Paint()
-        paint.color = Color.argb(100, 0, 0, 0)
-        paint.maskFilter = BlurMaskFilter(300F, BlurMaskFilter.Blur.INNER)
+            val rect = Rect(0, 0, canvas.width, canvas.height)
+            canvas.drawRect(rect, paint)
 
-        val rect = Rect(0, 0, canvas.width, canvas.height)
-        canvas.drawRect(rect, paint)
+            canvas.drawText(
+                text,
+                rect.centerX().toFloat(),
+                rect.centerY().toFloat() + textSize / 2f,
+                paintText
+            )
 
-        canvas.drawText(
-            text,
-            rect.centerX().toFloat(),
-            rect.centerY().toFloat() + textSize / 2f,
-            paintText
-        )
-
-        lastImage.setImageBitmap(blurredBitmap)
+            Glide.with(context).load(blurredBitmap).into(lastImage)
+        }
     }
 
-    private fun reEvaluateLastRow(bitmap: Bitmap) {
+    private fun reEvaluateLastRow(previewImage: PreviewImage) {
         if (width == 0) {
             return
         }
@@ -291,52 +385,42 @@ class ImageCollectionView @JvmOverloads constructor(
             val imagesCount = childCount * maxImagePerRow
             if (imagesCount < maxImages) {
                 createNewRow()
-                reEvaluateLastRow(bitmap)
+                reEvaluateLastRow(previewImage)
             } else {
                 addThereAreMore()
             }
             return
         }
 
-        val bitmaps = mBitmaps.subList(
-            mBitmaps.size - lineChildCount - 1, mBitmaps.size
+        val bitmaps = previewImages.subList(
+            previewImages.size - lineChildCount - 1, previewImages.size
         )
         addBitmapsToLine(bitmaps, lineLinearLayout)
     }
 
-    private fun addBitmapsToLine(bitmaps: List<Bitmap>, rowLinearLayout: ViewGroup) {
-        if (bitmaps.isEmpty())
+    private fun addBitmapsToLine(previewImages: List<PreviewImage>, rowLinearLayout: ViewGroup) {
+        if (previewImages.isEmpty())
             return
 
         rowLinearLayout.removeAllViews()
         rowLinearLayout.setBackgroundColor(mBackgroundColor)
 
-        val widthSum = bitmaps.sumBy { bitmap -> bitmap.width }
+        val widthSum = previewImages.sumBy { previewImage -> previewImage.width() }
 
-        bitmaps.forEach { bitmap: Bitmap ->
+        previewImages.forEach { previewImage: PreviewImage ->
             val imageView = ImageView(context)
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-            imageView.setImageBitmap(bitmap)
+            imageView.scaleType = scaleType
+            previewImage.loadImage(imageView)
 
             if (pinchToZoom && context is Activity) {
                 Zoomy.Builder(context as Activity).target(imageView).tapListener {
-                    mHashBitmapOnClick[bitmap]?.onClick(bitmap, imageView)
+                    previewImage.onClick()
                 }.longPressListener {
-                    mHashBitmapOnLongClick[bitmap]?.onLongClick(bitmap, imageView)
+                    previewImage.onLongClick()
                 }.register()
-            } else {
-                mHashBitmapOnClick[bitmap]?.let { bmp ->
-                    imageView.setOnClickListener { bmp.onClick(bitmap, imageView) }
-                }
-                mHashBitmapOnLongClick[bitmap]?.let { bmp ->
-                    imageView.setOnLongClickListener {
-                        bmp.onLongClick(bitmap, imageView)
-                        true
-                    }
-                }
             }
 
-            val proportion = (bitmap.width / widthSum.toFloat())
+            val proportion = (previewImage.width() / widthSum.toFloat())
             val widthBmp = ((width * proportion).toInt()) - (2 * imageMargin)
             val heightBmp = baseImageHeight - (2 * imageMargin)
 
@@ -344,8 +428,6 @@ class ImageCollectionView @JvmOverloads constructor(
             params.setMargins(imageMargin, imageMargin, imageMargin, imageMargin)
 
             rowLinearLayout.addView(imageView, params)
-
-            mHashBitmapImageView[bitmap] = imageView
         }
     }
 
@@ -418,11 +500,11 @@ class ImageCollectionView @JvmOverloads constructor(
     }
 
     fun getImageAt(index: Int): Bitmap {
-        return mBitmaps[index]
+        return previewImages[index].asBitmap()!!
     }
 
     fun getNullableImageAt(index: Int): Bitmap? {
-        return if (index < mBitmaps.size) mBitmaps[index] else null
+        return if (index < previewImages.size) previewImages[index].asBitmap() else null
     }
 
     interface OnImageClickListener {
