@@ -124,3 +124,8 @@ Sample of usage
 This project made use of [Zoomy](https://github.com/imablanco/Zoomy) by [Álvaro Blanco](https://github.com/imablanco) to enable "pinch to zoom" functionality.
 
 Contributions are welcome. Create a new pull request in order to submit your fixes and they shall be merged after moderation. In case of any issues, bugs or any suggestions, either create a new issue or post comments in already active relevant issues
+
+## Please consider supporting me
+Bitcoin URI: bitcoin:BC1Q4RT2KNSX28CA4H5YA08VF0SXMG3JPHKS6GWDXV?label=Consider%20support%20me
+
+Bitcoin Address: bc1q4rt2knsx28ca4h5ya08vf0sxmg3jphks6gwdxv
