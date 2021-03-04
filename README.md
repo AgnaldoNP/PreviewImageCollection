@@ -21,7 +21,7 @@ allprojects {
 **Step 2.** Add the dependency
 ```
 dependencies {
-  implementation 'com.github.AgnaldoNP:PreviewImageCollection:1.2'
+  implementation 'com.github.AgnaldoNP:PreviewImageCollection:1.3'
 }
 ```
 [![](https://jitpack.io/v/AgnaldoNP/PreviewImageCollection.svg)](https://jitpack.io/#AgnaldoNP/PreviewImageCollection)
@@ -61,25 +61,25 @@ Sample of usage
 ### Programmatically
 ```kotlin
     var collectionView = findViewById(R.id.imageCollectionView)
-    
+
     collectionView.maxRows = ImageCollectionView.NO_ROW_LIMITS
     collectionView.maxRows = 10
-    
+
     collectionView.maxImagePerRow =3
-    
+
     collectionView.imageMargin = 10
-    
+
     collectionView.baseImageHeight = 150
-    
+
     collectionView.mBackgroundColor = Color.WHITE
-    
+
     collectionView.pinchToZoom = true
-    
+
     ollectionView.showExternalBorderMargins = true
-    
+
     val bitmap = ...
     collectionView.addImage(bitmap)
-    
+
     val bitmap2 = ...
     collectionView.addImage(bitmap2, object : ImageCollectionView.OnImageClickListener {
         override fun onClick(bitmap: Bitmap, imageView: ImageView) {
@@ -90,7 +90,7 @@ Sample of usage
     collectionView.addImage(bitmap2, { bitmap: Bitmap?, imageView: ImageView? ->
         Toast.makeText(context, "Test Click on image ...", Toast.LENGTH_LONG).show()
     })
-    
+
     collectionView.setOnMoreClicked(object : ImageCollectionView.OnMoreClickListener {
         override fun onMoreClicked(bitmaps: List<Bitmap>) {
             Toast.makeText(collectionView.context, "on more clicked ", Toast.LENGTH_LONG).show()
@@ -100,19 +100,19 @@ Sample of usage
     collectionView.setOnMoreClicked { bitmaps ->
         Toast.makeText(collectionView.context, "on more clicked ", Toast.LENGTH_LONG).show()
     }
-``` 
+```
 
 ```java
     ImageCollectionView collectionView = (ImageCollectionView) findViewById(R.id.imageCollectionView);
 
     Bitmap bitmap = ...;
     imageCollectionView.addImage(bitmap);
-    
+
     Bitmap bitmap2 = ...;
     imageCollectionView.addImage(bitmap, (bmp, imageView) -> {
         Toast.makeText(context, "Test Click image 08", Toast.LENGTH_LONG).show();
     });
-    
+
     imageCollectionView.setOnMoreClicked(bitmaps -> {
         Toast.makeText(context, "OnMoreClicked", Toast.LENGTH_LONG).show();
     });
