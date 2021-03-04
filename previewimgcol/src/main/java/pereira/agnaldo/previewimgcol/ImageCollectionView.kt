@@ -7,10 +7,6 @@ import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.renderscript.Allocation
-import android.renderscript.Element
-import android.renderscript.RenderScript
-import android.renderscript.ScriptIntrinsicBlur
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -18,7 +14,6 @@ import android.widget.LinearLayout
 import com.ablanco.zoomy.Zoomy
 import com.bumptech.glide.Glide
 import java.io.File
-import kotlin.math.roundToInt
 
 
 class ImageCollectionView @JvmOverloads constructor(
@@ -338,7 +333,7 @@ class ImageCollectionView @JvmOverloads constructor(
         }
 
         previewImages[(maxRows * maxImagePerRow) - 1].asBitmap()?.let {
-            val blurredBitmap = blur(it)
+            val blurredBitmap = it.blur()
 
             val canvas = Canvas(blurredBitmap)
 
@@ -474,29 +469,6 @@ class ImageCollectionView @JvmOverloads constructor(
                 image.layoutParams = layoutParams
             }
         }
-    }
-
-    private fun blur(image: Bitmap): Bitmap {
-
-        val bitmapScale = 0.4f
-        val blurRadius = 15.5f
-
-        val width = (image.width * bitmapScale).roundToInt()
-        val height = (image.height * bitmapScale).roundToInt()
-
-        val inputBitmap = Bitmap.createScaledBitmap(image, width, height, false)
-        val outputBitmap = Bitmap.createBitmap(inputBitmap)
-
-        val rs = RenderScript.create(context)
-        val theIntrinsic = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs))
-        val tmpIn = Allocation.createFromBitmap(rs, inputBitmap)
-        val tmpOut = Allocation.createFromBitmap(rs, outputBitmap)
-        theIntrinsic.setRadius(blurRadius)
-        theIntrinsic.setInput(tmpIn)
-        theIntrinsic.forEach(tmpOut)
-        tmpOut.copyTo(outputBitmap)
-
-        return outputBitmap
     }
 
     fun getImageAt(index: Int): Bitmap {
