@@ -15,7 +15,6 @@ import com.ablanco.zoomy.Zoomy
 import com.bumptech.glide.Glide
 import java.io.File
 
-
 class ImageCollectionView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -145,8 +144,13 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         drawableRes: Int,
-        onClick: OnImageClickListener? = null,
-        onLongClick: OnImageLongClickListener? = null
+        onClick: OnImageClickListener?,
+    ) = addImage(PreviewImage(context, drawableRes), onClick, null)
+
+    fun addImage(
+        drawableRes: Int,
+        onClick: OnImageClickListener,
+        onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, drawableRes), onClick, onLongClick)
 
     fun addImage(
@@ -160,8 +164,13 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         drawable: Drawable,
-        onClick: OnImageClickListener? = null,
-        onLongClick: OnImageLongClickListener? = null
+        onClick: OnImageClickListener,
+    ) = addImage(PreviewImage(context, drawable), onClick, null)
+
+    fun addImage(
+        drawable: Drawable,
+        onClick: OnImageClickListener,
+        onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, drawable), onClick, onLongClick)
 
     fun addImage(
@@ -175,8 +184,13 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         bitmap: Bitmap,
-        onClick: OnImageClickListener? = null,
-        onLongClick: OnImageLongClickListener? = null
+        onClick: OnImageClickListener,
+    ) = addImage(PreviewImage(context, bitmap), onClick)
+
+    fun addImage(
+        bitmap: Bitmap,
+        onClick: OnImageClickListener,
+        onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, bitmap), onClick, onLongClick)
 
     fun addImage(
@@ -190,8 +204,13 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         bitmapFile: File,
-        onClick: OnImageClickListener? = null,
-        onLongClick: OnImageLongClickListener? = null
+        onClick: OnImageClickListener
+    ) = addImage(PreviewImage(context, bitmapFile), onClick, null)
+
+    fun addImage(
+        bitmapFile: File,
+        onClick: OnImageClickListener,
+        onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, bitmapFile), onClick, onLongClick)
 
     fun addImage(
@@ -205,8 +224,13 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         bitmapUri: Uri,
-        onClick: OnImageClickListener? = null,
-        onLongClick: OnImageLongClickListener? = null
+        onClick: OnImageClickListener
+    ) = addImage(PreviewImage(context, bitmapUri), onClick, null)
+
+    fun addImage(
+        bitmapUri: Uri,
+        onClick: OnImageClickListener,
+        onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, bitmapUri), onClick, onLongClick)
 
     fun addImage(
@@ -490,5 +514,4 @@ class ImageCollectionView @JvmOverloads constructor(
     interface OnMoreClickListener {
         fun onMoreClicked(bitmaps: List<Bitmap>)
     }
-
 }

@@ -19,7 +19,6 @@ internal class PreviewImage(private val context: Context) {
     var mOnClick: ImageCollectionView.OnImageClickListener? = null
     var mOnClickUnit: ((Bitmap?, ImageView?) -> Unit)? = null
 
-
     var mOnLongClick: ImageCollectionView.OnImageLongClickListener? = null
     var mOnLongClickUnit: ((Bitmap?, ImageView?) -> Unit)? = null
 
@@ -143,5 +142,4 @@ internal class PreviewImage(private val context: Context) {
 
         return true
     }
-
 }
