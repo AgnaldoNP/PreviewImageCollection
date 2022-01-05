@@ -21,7 +21,7 @@ allprojects {
 **Step 2.** Add the dependency
 ```
 dependencies {
-  implementation 'com.github.AgnaldoNP:PreviewImageCollection:1.3'
+  implementation 'com.github.AgnaldoNP:PreviewImageCollection:1.5'
 }
 ```
 [![](https://jitpack.io/v/AgnaldoNP/PreviewImageCollection.svg)](https://jitpack.io/#AgnaldoNP/PreviewImageCollection)
