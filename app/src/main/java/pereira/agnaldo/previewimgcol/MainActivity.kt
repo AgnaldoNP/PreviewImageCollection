@@ -151,13 +151,13 @@ class MainActivity : AppCompatActivity() {
         )
         collectionView.addImage(
             BitmapFactory.decodeResource(resources, R.drawable.landscape_01),
-            onLongClick = object : ImageCollectionView.OnImageLongClickListener {
+            object : ImageCollectionView.OnImageLongClickListener {
                 override fun onLongClick(bitmap: Bitmap, imageView: ImageView) {
                     Toast.makeText(imageView.context, "Long Click", Toast.LENGTH_LONG)
                         .show()
                 }
             })
-        collectionView.addImage(R.drawable.landscape_02, { bitmap: Bitmap?, imageView: ImageView? ->
+        collectionView.addImageK(R.drawable.landscape_02, { bitmap: Bitmap?, imageView: ImageView? ->
             Toast.makeText(this, "landscape_02", Toast.LENGTH_LONG).show()
         })
 

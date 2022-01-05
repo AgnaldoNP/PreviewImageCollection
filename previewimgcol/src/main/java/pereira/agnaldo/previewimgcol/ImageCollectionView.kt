@@ -149,11 +149,20 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         drawableRes: Int,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(PreviewImage(context, drawableRes), null, onLongClick)
+
+    fun addImage(
+        drawableRes: Int,
         onClick: OnImageClickListener,
         onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, drawableRes), onClick, onLongClick)
 
-    fun addImage(
+    /**
+     * Due to conflict with java and kotlin apps,
+     * functions with functional interface will receive K at end
+     */
+    fun addImageK(
         drawableRes: Int,
         onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
         onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
@@ -169,11 +178,20 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         drawable: Drawable,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(PreviewImage(context, drawable), null, onLongClick)
+
+    fun addImage(
+        drawable: Drawable,
         onClick: OnImageClickListener,
         onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, drawable), onClick, onLongClick)
 
-    fun addImage(
+    /**
+     * Due to conflict with java and kotlin apps,
+     * functions with functional interface will receive K at end
+     */
+    fun addImageK(
         drawable: Drawable,
         onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
         onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
@@ -189,11 +207,20 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         bitmap: Bitmap,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(PreviewImage(context, bitmap), null, onLongClick)
+
+    fun addImage(
+        bitmap: Bitmap,
         onClick: OnImageClickListener,
         onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, bitmap), onClick, onLongClick)
 
-    fun addImage(
+    /**
+     * Due to conflict with java and kotlin apps,
+     * functions with functional interface will receive K at end
+     */
+    fun addImageK(
         bitmap: Bitmap,
         onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
         onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
@@ -209,11 +236,20 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun addImage(
         bitmapFile: File,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(PreviewImage(context, bitmapFile), null, onLongClick)
+
+    fun addImage(
+        bitmapFile: File,
         onClick: OnImageClickListener,
         onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, bitmapFile), onClick, onLongClick)
 
-    fun addImage(
+    /**
+     * Due to conflict with java and kotlin apps,
+     * functions with functional interface will receive K at end
+     */
+    fun addImageK(
         bitmapFile: File,
         onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
         onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
@@ -234,6 +270,15 @@ class ImageCollectionView @JvmOverloads constructor(
     ) = addImage(PreviewImage(context, bitmapUri), onClick, onLongClick)
 
     fun addImage(
+        bitmapUri: Uri,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(PreviewImage(context, bitmapUri), null, onLongClick)
+
+    /**
+     * Due to conflict with java and kotlin apps,
+     * functions with functional interface will receive K at end
+     */
+    fun addImageK(
         bitmapUri: Uri,
         onClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null,
         onLongClickUnit: ((bitmap: Bitmap?, imageView: ImageView?) -> Unit)? = null
