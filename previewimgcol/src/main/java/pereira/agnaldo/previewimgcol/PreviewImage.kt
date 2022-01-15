@@ -12,7 +12,10 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.RequestManager
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import java.io.File
 
 internal class PreviewImage(private val context: Context) {
@@ -94,19 +97,29 @@ internal class PreviewImage(private val context: Context) {
         else -> null
     }
 
-    private fun RequestManager.loadUrl(url: String) = this.load(url).addListener(
-        GlideListener(
-            onSuccess = {
-                imageBitmap = it
+    private fun RequestManager.loadUrl(url: String): RequestBuilder<Drawable> {
+        Glide.with(context).asBitmap().load(url).into(object : SimpleTarget<Bitmap>() {
+            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                imageBitmap = resource
                 bitmapLoaded?.invoke()
-            },
-            onError = {
-                if (BuildConfig.DEBUG) {
-                    it?.printStackTrace()
-                }
             }
+        })
+
+        return this.load(url).addListener(
+            GlideListener(
+                onSuccess = {
+                    if (imageBitmap == null) {
+                        imageBitmap = it
+                    }
+                },
+                onError = {
+                    if (BuildConfig.DEBUG) {
+                        it?.printStackTrace()
+                    }
+                }
+            )
         )
-    )
+    }
 
     fun width() = imageBitmap?.width
         ?: ContextCompat.getDrawable(context, placeHolder ?: R.drawable.blur)?.intrinsicWidth
