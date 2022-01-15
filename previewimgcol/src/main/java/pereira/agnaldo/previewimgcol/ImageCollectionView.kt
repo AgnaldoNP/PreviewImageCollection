@@ -4,13 +4,14 @@ package pereira.agnaldo.previewimgcol
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
+import android.graphics.* // ktlint-disable no-wildcard-imports
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.annotation.DrawableRes
 import com.ablanco.zoomy.Zoomy
 import com.bumptech.glide.Glide
 import java.io.File
@@ -151,6 +152,48 @@ class ImageCollectionView @JvmOverloads constructor(
         drawableRes: Int,
         onLongClick: OnImageLongClickListener
     ) = addImage(PreviewImage(context, drawableRes), null, onLongClick)
+
+    fun addImage(url: String, @DrawableRes placeHolder: Int) =
+        addImage(
+            PreviewImage(context, url, placeHolder) {
+                invalidatePreview()
+            },
+            onClick = null, onLongClick = null
+        )
+
+    fun addImage(
+        url: String,
+        @DrawableRes placeHolder: Int,
+        onClick: OnImageClickListener?,
+    ) = addImage(
+        PreviewImage(context, url, placeHolder) {
+            invalidatePreview()
+        },
+        onClick, null
+    )
+
+    fun addImage(
+        url: String,
+        @DrawableRes placeHolder: Int,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(
+        PreviewImage(context, url, placeHolder) {
+            invalidatePreview()
+        },
+        null, onLongClick
+    )
+
+    fun addImage(
+        url: String,
+        @DrawableRes placeHolder: Int,
+        onClick: OnImageClickListener,
+        onLongClick: OnImageLongClickListener
+    ) = addImage(
+        PreviewImage(context, url, placeHolder) {
+            invalidatePreview()
+        },
+        onClick, onLongClick
+    )
 
     fun addImage(
         drawableRes: Int,
@@ -383,53 +426,55 @@ class ImageCollectionView @JvmOverloads constructor(
         }
     }
 
-    private fun addThereAreMore() {
+    private fun addThereAreMore() = synchronized(this) {
         val lastRow = getChildAt(childCount - 1) as LinearLayout
         val lastImage = lastRow.getChildAt(lastRow.childCount - 1) as ImageView
+        lastImage.post {
+            Zoomy.unregister(lastImage)
+            val lastImageIndex = childCount * maxImagePerRow
 
-        Zoomy.unregister(lastImage)
-        val lastImageIndice = childCount * maxImagePerRow
-
-        if (onMoreClickListener != null || onMoreClickListenerUnit != null) {
-            lastImage.setOnClickListener {
-                val bitmaps = previewImages.subList(
-                    lastImageIndice - 1,
-                    previewImages.size
-                ).mapNotNull { it.asBitmap() }.toList()
-                onMoreClickListener?.onMoreClicked(bitmaps)
-                onMoreClickListenerUnit?.invoke(bitmaps)
+            if (onMoreClickListener != null || onMoreClickListenerUnit != null) {
+                lastImage.setOnClickListener {
+                    val bitmaps = previewImages.subList(
+                        lastImageIndex - 1,
+                        previewImages.size
+                    ).mapNotNull { it.asBitmap() }.toList()
+                    onMoreClickListener?.onMoreClicked(bitmaps)
+                    onMoreClickListenerUnit?.invoke(bitmaps)
+                }
             }
-        }
 
-        previewImages[(maxRows * maxImagePerRow) - 1].asBitmap()?.let {
-            val blurredBitmap = it.blur()
+            val index = (maxRows * maxImagePerRow) - 1
+            previewImages.takeIf { index < previewImages.size - 1 }?.get(index)?.asBitmap()?.let {
+                val blurredBitmap = it.blur(lastImage.width.takeIf { w -> w != 0 } ?: it.width / 2)
 
-            val canvas = Canvas(blurredBitmap)
+                val canvas = Canvas(blurredBitmap)
 
-            val paintText = Paint()
-            paintText.color = Color.WHITE
-            paintText.style = Paint.Style.FILL_AND_STROKE
-            paintText.textAlign = Paint.Align.CENTER
+                val paintText = Paint()
+                paintText.color = Color.WHITE
+                paintText.style = Paint.Style.FILL_AND_STROKE
+                paintText.textAlign = Paint.Align.CENTER
 
-            val text = "+".plus(previewImages.size - lastImageIndice + 1)
-            val textSize = 130f
-            paintText.textSize = 130f
+                val text = "+".plus(previewImages.size - lastImageIndex + 1)
+                val textSize = blurredBitmap.width / 4.toFloat()
+                paintText.textSize = textSize
 
-            val paint = Paint()
-            paint.color = Color.argb(100, 0, 0, 0)
-            paint.maskFilter = BlurMaskFilter(300F, BlurMaskFilter.Blur.INNER)
+                val paint = Paint()
+                paint.color = Color.argb(100, 0, 0, 0)
+                paint.maskFilter = BlurMaskFilter(300F, BlurMaskFilter.Blur.INNER)
 
-            val rect = Rect(0, 0, canvas.width, canvas.height)
-            canvas.drawRect(rect, paint)
+                val rect = Rect(0, 0, canvas.width, canvas.height)
+                canvas.drawRect(rect, paint)
 
-            canvas.drawText(
-                text,
-                rect.centerX().toFloat(),
-                rect.centerY().toFloat() + textSize / 2f,
-                paintText
-            )
+                canvas.drawText(
+                    text,
+                    rect.centerX().toFloat(),
+                    rect.centerY().toFloat() + textSize / 2f,
+                    paintText
+                )
 
-            Glide.with(context).load(blurredBitmap).into(lastImage)
+                Glide.with(context).load(blurredBitmap).into(lastImage)
+            }
         }
     }
 
@@ -462,6 +507,47 @@ class ImageCollectionView @JvmOverloads constructor(
         addBitmapsToLine(bitmaps, lineLinearLayout)
     }
 
+    private fun invalidatePreview() = synchronized(this) {
+//        clearAndReloadBitmaps()
+        try {
+            for (i in 0 until childCount) {
+                val line = getChildAt(i) as ViewGroup
+
+                val previewImages = mutableListOf<PreviewImage>()
+                for (j in 0 until line.childCount) {
+                    val image = line.getChildAt(j) as? ImageView
+                    val imagePreview = (image?.tag as? PreviewImage)
+                    imagePreview?.let { previewImages.add(it) }
+                }
+
+                val widthSum = previewImages.sumOf { previewImage -> previewImage.width() }
+                previewImages.forEachIndexed { index, previewImage ->
+                    (line.getChildAt(index) as? ImageView)?.let { imageView ->
+                        val proportion = (previewImage.width() / widthSum.toFloat())
+                        val widthBmp = ((width * proportion).toInt()) - (2 * imageMargin)
+                        val heightBmp = baseImageHeight - (2 * imageMargin)
+
+                        val params = imageView.layoutParams as LayoutParams
+                        params.width = widthBmp
+                        params.height = heightBmp
+                        params.setMargins(imageMargin, imageMargin, imageMargin, imageMargin)
+                        imageView.layoutParams = params
+
+                        previewImage.loadImage(imageView)
+                    }
+
+                    if (i == childCount - 1 && index == line.childCount - 1) {
+                        addThereAreMore()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            if (BuildConfig.DEBUG) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun addBitmapsToLine(previewImages: List<PreviewImage>, rowLinearLayout: ViewGroup) {
         if (previewImages.isEmpty())
             return
@@ -469,10 +555,11 @@ class ImageCollectionView @JvmOverloads constructor(
         rowLinearLayout.removeAllViews()
         rowLinearLayout.setBackgroundColor(mBackgroundColor)
 
-        val widthSum = previewImages.sumBy { previewImage -> previewImage.width() }
+        val widthSum = previewImages.sumOf { previewImage -> previewImage.width() }
 
         previewImages.forEach { previewImage: PreviewImage ->
             val imageView = ImageView(context)
+            imageView.tag = previewImage
             imageView.scaleType = scaleType
             previewImage.loadImage(imageView)
 

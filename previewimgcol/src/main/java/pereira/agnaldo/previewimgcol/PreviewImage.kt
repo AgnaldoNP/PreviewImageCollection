@@ -12,6 +12,7 @@ import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
 import java.io.File
 
 internal class PreviewImage(private val context: Context) {
@@ -42,6 +43,21 @@ internal class PreviewImage(private val context: Context) {
         this.imageResourceId = imageResourceId
     }
 
+    private var imageUrl: String? = null
+    private var placeHolder: Int? = null
+    private var bitmapLoaded: (() -> Unit)? = null
+
+    constructor(
+        context: Context,
+        imageUrl: String,
+        placeHolder: Int? = null,
+        bitmapLoaded: () -> Unit
+    ) : this(context) {
+        this.imageUrl = imageUrl
+        this.bitmapLoaded = bitmapLoaded
+        this.placeHolder = placeHolder
+    }
+
     private var imageDrawable: Drawable? = null
 
     constructor(context: Context, imageDrawable: Drawable) : this(context) {
@@ -56,40 +72,45 @@ internal class PreviewImage(private val context: Context) {
 
     fun loadImage(imageView: ImageView) {
         this.mImageView = imageView
-        Glide.with(context).let { glide ->
-            when {
-                imageUri != null -> {
-                    glide.load(imageUri)
-                }
-                imageBitmap != null -> {
-                    glide.load(imageBitmap)
-                }
-                imageFile != null -> {
-                    glide.load(imageFile)
-                }
-                imageDrawable != null -> {
-                    glide.load(imageDrawable)
-                }
-                imageResourceId != null -> {
-                    glide.load(imageResourceId)
-                }
-                else -> {
-                    null
-                }
-            }?.into(imageView)
+        imageView.post {
+            Glide.with(context)
+                .loadImage()
+                ?.error(placeHolder ?: R.drawable.blur)
+                ?.placeholder(placeHolder ?: R.drawable.blur)
+                ?.into(imageView)
 
             imageView.setOnClickListener { onClick() }
             imageView.setOnLongClickListener { onLongClick() }
         }
     }
 
-    fun width(): Int {
-        if (imageBitmap != null) {
-            return imageBitmap?.width ?: 0
-        }
-
-        return 0
+    private fun RequestManager.loadImage() = when {
+        imageBitmap != null -> this.load(imageBitmap)
+        imageUrl != null -> this.loadUrl(imageUrl!!)
+        imageUri != null -> this.load(imageUri)
+        imageFile != null -> this.load(imageFile)
+        imageDrawable != null -> this.load(imageDrawable)
+        imageResourceId != null -> this.load(imageResourceId)
+        else -> null
     }
+
+    private fun RequestManager.loadUrl(url: String) = this.load(url).addListener(
+        GlideListener(
+            onSuccess = {
+                imageBitmap = it
+                bitmapLoaded?.invoke()
+            },
+            onError = {
+                if (BuildConfig.DEBUG) {
+                    it?.printStackTrace()
+                }
+            }
+        )
+    )
+
+    fun width() = imageBitmap?.width
+        ?: ContextCompat.getDrawable(context, placeHolder ?: R.drawable.blur)?.intrinsicWidth
+        ?: 0
 
     fun asBitmap(): Bitmap? =
         when {

@@ -4,7 +4,13 @@ import android.graphics.Bitmap
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-fun Bitmap.blur(scale: Float = 0.5f, radius: Int = 10): Bitmap {
+fun Bitmap.blur(
+    newWidth: Int = (this.width / 2.0).toInt(),
+    radius: Int = 10
+): Bitmap {
+
+    val scale = newWidth.toFloat() / this.width
+
     var sentBitmap = this
     val width = (sentBitmap.width * scale).roundToInt()
     val height = (sentBitmap.height * scale).roundToInt()

@@ -16,3 +16,6 @@
 .idea/gradle.xml
 .idea/jarRepositories.xml
 .idea/runConfigurations.xml
+.idea/
+.idea/*
+.idea/*.*

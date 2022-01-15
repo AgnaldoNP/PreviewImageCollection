@@ -5,13 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
-import android.widget.*
+import android.widget.* // ktlint-disable no-wildcard-imports
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import com.ivan200.photobarcodelib.PhotoBarcodeScannerBuilder
 
 class MainActivity : AppCompatActivity() {
-
 
     private lateinit var collectionView: ImageCollectionView
     private lateinit var backgroundColor: SeekBar
@@ -29,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         get() = (this / Resources.getSystem().displayMetrics.density).toInt()
     val Int.px: Int
         get() = (this * Resources.getSystem().displayMetrics.density).toInt()
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +57,6 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
             }
         })
-
 
         baseRowHeight.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -141,7 +138,8 @@ class MainActivity : AppCompatActivity() {
             collectionView.clearImages()
         }
 
-        collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_08),
+        collectionView.addImage(
+            BitmapFactory.decodeResource(resources, R.drawable.landscape_08),
             object : ImageCollectionView.OnImageClickListener {
                 override fun onClick(bitmap: Bitmap, imageView: ImageView) {
                     Toast.makeText(imageView.context, "Test Click image 08", Toast.LENGTH_LONG)
@@ -156,18 +154,29 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(imageView.context, "Long Click", Toast.LENGTH_LONG)
                         .show()
                 }
-            })
-        collectionView.addImageK(R.drawable.landscape_02, { bitmap: Bitmap?, imageView: ImageView? ->
-            Toast.makeText(this, "landscape_02", Toast.LENGTH_LONG).show()
-        })
+            }
+        )
+        collectionView.addImageK(
+            R.drawable.landscape_02,
+            { bitmap: Bitmap?, imageView: ImageView? ->
+                Toast.makeText(this, "landscape_02", Toast.LENGTH_LONG).show()
+            }
+        )
 
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_05))
-
 
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_03))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_04))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_06))
         collectionView.addImage(BitmapFactory.decodeResource(resources, R.drawable.landscape_07))
+        collectionView.addImage(
+            "https://d1dwhi9yny5dep.cloudfront.net/cm_live/c4d403788761d42233b6675.desktop-gallery-large.jpg",
+            R.drawable.blur
+        )
+        collectionView.addImage(
+            "https://d1dwhi9yny5dep.cloudfront.net/cm_live/80f4beb96361d422359321c.desktop-gallery-large.jpg",
+            R.drawable.blur
+        )
 
         collectionView.setOnMoreClicked(object : ImageCollectionView.OnMoreClickListener {
             override fun onMoreClicked(bitmaps: List<Bitmap>) {
@@ -176,8 +185,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        collectionView.setOnMoreClicked { bitmaps ->
-
-        }
+        collectionView.setOnMoreClicked { bitmaps -> }
     }
 }
