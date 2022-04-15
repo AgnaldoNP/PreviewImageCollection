@@ -570,6 +570,8 @@ open class ImageCollectionView @JvmOverloads constructor(
                 e.printStackTrace()
             }
         }
+
+        removeOutsideMargins()
     }
 
     private fun addBitmapsToLine(previewImages: List<PreviewImage>, rowLinearLayout: ViewGroup) {
