@@ -3,5 +3,6 @@
 
     <bool name="pinchToZoom">true</bool>
     <bool name="showExternalBorderMargins">true</bool>
+    <bool name="previewDistributeEvenly">false</bool>
 
 </resources>

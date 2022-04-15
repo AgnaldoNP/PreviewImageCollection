@@ -68,6 +68,7 @@ Sample of usage
 | maxImagePerRow              | integer           | 3           |
 | maxRows                     | integer           | 3           |
 | previewImageScaleType       | enum              | center_crop |
+| previewDistributeEvenly     | boolean           | false       |
 
 > On Version 2.0 `imageScaleType` was changed to `previewImageScaleType`
 

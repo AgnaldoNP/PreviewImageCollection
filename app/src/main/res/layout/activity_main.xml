@@ -172,6 +172,7 @@
             app:pinchToZoom="true"
             app:showExternalBorderMargins="true"
             app:maxImagePerRow="3"
+            app:previewDistributeEvenly="true"
             app:maxRows="2" />
 
     </LinearLayout>

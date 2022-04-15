@@ -50,6 +50,12 @@ class ImageCollectionView @JvmOverloads constructor(
             clearAndReloadBitmaps()
         }
 
+    var previewDistributeEvenly = false
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
     var imageMargin = 1
         set(value) {
             field = value
@@ -105,6 +111,10 @@ class ImageCollectionView @JvmOverloads constructor(
 
             maxImagePerRow = typedArray.getInteger(
                 R.styleable.ImageCollectionView_maxImagePerRow, maxImagePerRow
+            )
+
+            previewDistributeEvenly = typedArray.getBoolean(
+                R.styleable.ImageCollectionView_previewDistributeEvenly, previewDistributeEvenly
             )
 
             maxRows = typedArray.getInteger(
@@ -523,7 +533,12 @@ class ImageCollectionView @JvmOverloads constructor(
                 previewImages.forEachIndexed { index, previewImage ->
                     (line.getChildAt(index) as? ImageView)?.let { imageView ->
                         val proportion = (previewImage.width() / widthSum.toFloat())
-                        val widthBmp = ((width * proportion).toInt()) - (2 * imageMargin)
+                        val widthBmp = if (!previewDistributeEvenly) {
+                            ((width * proportion).toInt()) - (2 * imageMargin)
+                        } else {
+                            (width / previewImages.size) - (2 * imageMargin)
+                        }
+
                         val heightBmp = baseImageHeight - (2 * imageMargin)
 
                         val params = imageView.layoutParams as LayoutParams
@@ -571,7 +586,11 @@ class ImageCollectionView @JvmOverloads constructor(
             }
 
             val proportion = (previewImage.width() / widthSum.toFloat())
-            val widthBmp = ((width * proportion).toInt()) - (2 * imageMargin)
+            val widthBmp = if (!previewDistributeEvenly) {
+                ((width * proportion).toInt()) - (2 * imageMargin)
+            } else {
+                (width / previewImages.size) - (2 * imageMargin)
+            }
             val heightBmp = baseImageHeight - (2 * imageMargin)
 
             val params = LayoutParams(widthBmp, heightBmp)
