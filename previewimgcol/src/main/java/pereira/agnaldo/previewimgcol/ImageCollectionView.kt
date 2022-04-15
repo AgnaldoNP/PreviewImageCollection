@@ -420,6 +420,7 @@ class ImageCollectionView @JvmOverloads constructor(
         removeAllViews()
         extractAndInflateImagesPerLine(previewImages)
         removeOutsideMargins()
+        invalidate()
     }
 
     private fun extractAndInflateImagesPerLine(previewImages: List<PreviewImage>) {
