@@ -10,6 +10,7 @@
         <item name="pinchToZoom">@bool/pinchToZoom</item>
         <item name="previewDistributeEvenly">@bool/previewDistributeEvenly</item>
         <item name="previewImageScaleType">centerCrop</item>
+        <item name="previewCornerRadius">@dimen/previewCornerRadius</item>
     </style>
 
 </resources>

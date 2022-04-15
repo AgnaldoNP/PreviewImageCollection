@@ -9,6 +9,7 @@ import android.widget.* // ktlint-disable no-wildcard-imports
 import android.widget.SeekBar.OnSeekBarChangeListener
 import androidx.appcompat.app.AppCompatActivity
 import com.ivan200.photobarcodelib.PhotoBarcodeScannerBuilder
+import kotlinx.android.synthetic.main.activity_main.view.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,8 +19,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var imageMargin: SeekBar
     private lateinit var maxImagePerRow: SeekBar
     private lateinit var maxRows: SeekBar
+    private lateinit var cornerRadius: SeekBar
     private lateinit var pinchToZoom: CheckBox
     private lateinit var showExternalBoards: CheckBox
+    private lateinit var distributeEvenly: CheckBox
 
     private lateinit var addPhoto: Button
     private lateinit var clearPhotos: Button
@@ -40,8 +43,10 @@ class MainActivity : AppCompatActivity() {
         imageMargin = findViewById(R.id.imageMargin)
         maxImagePerRow = findViewById(R.id.maxImagePerRow)
         maxRows = findViewById(R.id.maxRows)
+        cornerRadius = findViewById(R.id.cornerRadius)
         pinchToZoom = findViewById(R.id.pinchToZoom)
         showExternalBoards = findViewById(R.id.showExternalBorderMargins)
+        distributeEvenly = findViewById(R.id.distributeEvenly)
         addPhoto = findViewById(R.id.add_photo)
         clearPhotos = findViewById(R.id.clear_photos)
 
@@ -107,12 +112,29 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
+        cornerRadius.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                collectionView.previewCornerRadius =
+                    (collectionView.width * (progress / 100F)).toInt()
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            }
+        })
+
         pinchToZoom.setOnCheckedChangeListener { buttonView, isChecked ->
             collectionView.pinchToZoom = isChecked
         }
 
         showExternalBoards.setOnCheckedChangeListener { buttonView, isChecked ->
             collectionView.showExternalBorderMargins = isChecked
+        }
+
+        distributeEvenly.setOnCheckedChangeListener { buttonView, isChecked ->
+            collectionView.previewDistributeEvenly = isChecked
         }
 
         addPhoto.setOnClickListener {

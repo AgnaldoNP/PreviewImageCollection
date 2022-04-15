@@ -3,5 +3,6 @@
 
     <dimen name="baseRowHeight">150dp</dimen>
     <dimen name="imageMargin">1px</dimen>
+    <dimen name="previewCornerRadius">0dp</dimen>
 
 </resources>

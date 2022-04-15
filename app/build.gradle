@@ -11,8 +11,8 @@ android {
         applicationId "pereira.agnaldo.previewimgcol"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 6
-        versionName "1.5"
+        versionCode 7
+        versionName "1.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true

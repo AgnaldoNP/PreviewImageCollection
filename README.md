@@ -32,7 +32,7 @@ dependencyResolutionManagement {
 **Step 2.** Add the dependency
 ```
 dependencies {
-  implementation 'com.github.AgnaldoNP:PreviewImageCollection:2.0'
+  implementation 'com.github.AgnaldoNP:PreviewImageCollection:2.1'
 }
 ```
 [![](https://jitpack.io/v/AgnaldoNP/PreviewImageCollection.svg)](https://jitpack.io/#AgnaldoNP/PreviewImageCollection)
@@ -69,6 +69,7 @@ Sample of usage
 | maxRows                     | integer           | 3           |
 | previewImageScaleType       | enum              | center_crop |
 | previewDistributeEvenly     | boolean           | false       |
+| previewCornerRadius         | dimension         | 0dp         |
 
 > On Version 2.0 `imageScaleType` was changed to `previewImageScaleType`
 

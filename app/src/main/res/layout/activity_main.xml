@@ -133,6 +133,30 @@
                 android:progress="3" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:gravity="end|center"
+            android:orientation="horizontal"
+            android:weightSum="15">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="5"
+                android:text="Corner Radius" />
+
+            <SeekBar
+                android:id="@+id/cornerRadius"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:max="50"
+                android:progress="0" />
+        </LinearLayout>
+
         <CheckBox
             android:id="@+id/showExternalBorderMargins"
             android:layout_width="match_parent"
@@ -148,6 +172,14 @@
             android:layout_marginTop="10dp"
             android:checked="true"
             android:text="Enable Pinch to Zoom" />
+
+        <CheckBox
+            android:id="@+id/distributeEvenly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="false"
+            android:text="Distribute Evenly" />
 
         <Button
             android:id="@+id/add_photo"
@@ -169,11 +201,10 @@
             app:backgroundColor="@color/colorAccent"
             app:baseRowHeight="150dp"
             app:imageMargin="2dp"
-            app:pinchToZoom="true"
-            app:showExternalBorderMargins="true"
             app:maxImagePerRow="3"
-            app:previewDistributeEvenly="true"
-            app:maxRows="2" />
+            app:maxRows="2"
+            app:pinchToZoom="true"
+            app:showExternalBorderMargins="true" />
 
     </LinearLayout>
 

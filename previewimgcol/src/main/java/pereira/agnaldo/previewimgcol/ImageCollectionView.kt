@@ -4,7 +4,7 @@ package pereira.agnaldo.previewimgcol
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.* // ktlint-disable no-wildcard-imports
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.AttributeSet
@@ -51,6 +51,12 @@ class ImageCollectionView @JvmOverloads constructor(
         }
 
     var previewDistributeEvenly = false
+        set(value) {
+            field = value
+            clearAndReloadBitmaps()
+        }
+
+    var previewCornerRadius = 0
         set(value) {
             field = value
             clearAndReloadBitmaps()
@@ -107,6 +113,10 @@ class ImageCollectionView @JvmOverloads constructor(
 
             imageMargin = typedArray.getDimensionPixelSize(
                 R.styleable.ImageCollectionView_imageMargin, imageMargin
+            )
+
+            previewCornerRadius = typedArray.getDimensionPixelSize(
+                R.styleable.ImageCollectionView_previewCornerRadius, previewCornerRadius
             )
 
             maxImagePerRow = typedArray.getInteger(
@@ -651,6 +661,20 @@ class ImageCollectionView @JvmOverloads constructor(
 
     fun getNullableImageAt(index: Int): Bitmap? {
         return if (index < previewImages.size) previewImages[index].asBitmap() else null
+    }
+
+    override fun dispatchDraw(canvas: Canvas?) {
+        if (previewCornerRadius > 0 && canvas != null) {
+            val clipPath = Path()
+            clipPath.addRoundRect(
+                RectF(0F, 0F, width.toFloat(), height.toFloat()),
+                previewCornerRadius.toFloat(),
+                previewCornerRadius.toFloat(),
+                Path.Direction.CW
+            )
+            canvas.clipPath(clipPath)
+        }
+        super.dispatchDraw(canvas)
     }
 
     interface OnImageClickListener {
