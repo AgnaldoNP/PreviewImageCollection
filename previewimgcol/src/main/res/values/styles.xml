@@ -8,7 +8,7 @@
         <item name="backgroundColor">@color/backgroundColor</item>
         <item name="showExternalBorderMargins">@bool/showExternalBorderMargins</item>
         <item name="pinchToZoom">@bool/pinchToZoom</item>
-        <item name="imageScaleType">centerCrop</item>
+        <item name="previewImageScaleType">centerCrop</item>
     </style>
 
 </resources>

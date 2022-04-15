@@ -38,7 +38,7 @@ class ImageCollectionView @JvmOverloads constructor(
             clearAndReloadBitmaps()
         }
 
-    var maxRows = NO_ROW_LIMITS
+    var maxRows = 3
         set(value) {
             field = value
             clearAndReloadBitmaps()
@@ -112,7 +112,7 @@ class ImageCollectionView @JvmOverloads constructor(
             )
 
             val scaleTypeInt = typedArray.getInteger(
-                R.styleable.ImageCollectionView_imageScaleType,
+                R.styleable.ImageCollectionView_previewImageScaleType,
                 ImageView.ScaleType.CENTER_CROP.ordinal
             )
 
@@ -492,7 +492,7 @@ class ImageCollectionView @JvmOverloads constructor(
         if (lineChildCount == maxImagePerRow) {
             val maxImages = maxRows * maxImagePerRow
             val imagesCount = childCount * maxImagePerRow
-            if (imagesCount < maxImages) {
+            if (maxRows == NO_ROW_LIMITS || imagesCount < maxImages) {
                 createNewRow()
                 reEvaluateLastRow(previewImage)
             } else {
@@ -508,7 +508,6 @@ class ImageCollectionView @JvmOverloads constructor(
     }
 
     private fun invalidatePreview() = synchronized(this) {
-//        clearAndReloadBitmaps()
         try {
             for (i in 0 until childCount) {
                 val line = getChildAt(i) as ViewGroup
@@ -536,7 +535,7 @@ class ImageCollectionView @JvmOverloads constructor(
                         previewImage.loadImage(imageView)
                     }
 
-                    if (i == childCount - 1 && index == line.childCount - 1) {
+                    if (maxRows != NO_ROW_LIMITS && i == childCount - 1 && index == line.childCount - 1) {
                         addThereAreMore()
                     }
                 }

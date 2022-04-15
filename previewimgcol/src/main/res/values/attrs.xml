@@ -9,7 +9,7 @@
         <attr name="backgroundColor" format="color" />
         <attr name="pinchToZoom" format="boolean" />
         <attr name="showExternalBorderMargins" format="boolean" />
-        <attr name="imageScaleType">
+        <attr name="previewImageScaleType">
             <enum name="matrix" value="0" />
             <enum name="fitXY" value="1" />
             <enum name="fitStart" value="2" />

@@ -18,14 +18,24 @@ allprojects {
   }
 }
 ```
+
+If you are using newest versions of gradle this config should be done on settings.gradle
+```
+dependencyResolutionManagement {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
 **Step 2.** Add the dependency
 ```
 dependencies {
-  implementation 'com.github.AgnaldoNP:PreviewImageCollection:1.9'
+  implementation 'com.github.AgnaldoNP:PreviewImageCollection:2.0'
 }
 ```
 [![](https://jitpack.io/v/AgnaldoNP/PreviewImageCollection.svg)](https://jitpack.io/#AgnaldoNP/PreviewImageCollection)
-
 
 ## Usage
 
@@ -45,18 +55,21 @@ Sample of usage
     app:maxRows="2" />
 
 ```
-### Options
-| Property                  | Value type        | Default     |
-|---------------------------|-------------------|-------------|
-| backgroundColor           | color             | #FFFFFF     |
-| baseRowHeight             | dimension         | 150dp       |
-| imageMargin               | dimension         | 1dp         |
-| pinchToZoom               | boolean           | true        |
-| showExternalBorderMargins | boolean           | true        |
-| maxImagePerRow            | integer           | 3           |
-| maxRows                   | integer           | 3           |
-| imageScaleType            | enum              | center_crop |
 
+### Options
+
+| Property                    | Value type        | Default     |
+|-----------------------------|-------------------|-------------|
+| backgroundColor             | color             | #FFFFFF     |
+| baseRowHeight               | dimension         | 150dp       |
+| imageMargin                 | dimension         | 1dp         |
+| pinchToZoom                 | boolean           | true        |
+| showExternalBorderMargins   | boolean           | true        |
+| maxImagePerRow              | integer           | 3           |
+| maxRows                     | integer           | 3           |
+| previewImageScaleType       | enum              | center_crop |
+
+> On Version 2.0 `imageScaleType` was changed to `previewImageScaleType`
 
 ### Programmatically
 ```kotlin
@@ -75,7 +88,7 @@ Sample of usage
 
     collectionView.pinchToZoom = true
 
-    ollectionView.showExternalBorderMargins = true
+    collectionView.showExternalBorderMargins = true
 
     val bitmap = ...
     collectionView.addImage(bitmap)
