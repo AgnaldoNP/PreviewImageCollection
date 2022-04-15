@@ -16,7 +16,7 @@ import com.ablanco.zoomy.Zoomy
 import com.bumptech.glide.Glide
 import java.io.File
 
-class ImageCollectionView @JvmOverloads constructor(
+open class ImageCollectionView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -420,7 +420,6 @@ class ImageCollectionView @JvmOverloads constructor(
         removeAllViews()
         extractAndInflateImagesPerLine(previewImages)
         removeOutsideMargins()
-        invalidate()
     }
 
     private fun extractAndInflateImagesPerLine(previewImages: List<PreviewImage>) {
@@ -654,6 +653,8 @@ class ImageCollectionView @JvmOverloads constructor(
                 image.layoutParams = layoutParams
             }
         }
+
+        post { invalidate() }
     }
 
     fun getImageAt(index: Int): Bitmap {
